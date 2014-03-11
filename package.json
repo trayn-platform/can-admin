@@ -1,0 +1,19 @@
+{
+  "name": "can-admin",
+  "version": "0.1.0-dev",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.3",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-jshint": "~0.8.0",
+    "grunt-contrib-requirejs": "~0.4.3",
+    "can-compile": "~0.5.0",
+    "grunt-contrib-less": "~0.10.0",
+    "grunt-contrib-uglify": "~0.4.0"
+  },
+  "scripts": {
+    "test": "grunt travis --verbose"
+  }
+}

@@ -1,0 +1,33 @@
+<div class="can-admin">
+    <header>
+        <h2>Admin Area</h2>
+    </header>
+    <nav class="admin-breadcrumb"></nav>
+    <nav class="admin-entities">
+        <ul>
+            <% list(types, function(type){ %>
+                <li>
+                    <a href="<%= type.getRoute() %>">
+                        <i class="icon-<%= type.getIcon() %>"></i>
+                        <%= type.getNamePlural() %>
+                    </a>
+                </li>
+            <% }) %>
+        </ul>
+        <% if(this.pages && this.pages.length) { %>
+        <hr>
+        <ul>
+            <% list(pages, function(page){ %>
+                <li>
+                    <a href="<%= page.getRoute() %>">
+                        <i class="icon-<%= page.getIcon() %>"></i>
+                        <%= page.getName() %>
+                    </a>
+                </li>
+            <% }) %>
+        </ul>
+        <% } %>
+
+    </nav>
+    <div class="admin-content"></div>
+</div>

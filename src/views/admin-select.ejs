@@ -1,0 +1,17 @@
+<select class="<%= this.cssClass ? this.cssClass : ''%>"
+    style="min-width: 220px; max-width: 600px;"
+    id="admin-edit-<%= name %>"
+    name="<%= name %>"
+    <%= this.multiple ? "multiple size='3'" :""%>>
+    <% var multiple = this.multiple, displayProperty = this.displayProperty, selected = this.selected %>
+    <% list(options, function(opt) { %>
+        <% var val = opt.constructor ? opt[opt.constructor.id] : opt.value;
+           var displayName = displayProperty ? can.getObject(displayProperty, opt) : can.capitalize(val);
+           var sel = (multiple ?
+                    can.inArray(val, selected) !== -1 :
+                    val === selected) ? "selected" : "" %>
+        <option value="<%= val %>" <%= sel %>>
+            <%= displayName %>
+        </option>
+    <% }) %>
+</select>

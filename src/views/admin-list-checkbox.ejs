@@ -1,0 +1,18 @@
+<div class="row-fluid <%= this.cssClass ? this.cssClass : ''%>">
+<% var that = this %>
+<% list(options, function(opt, i) { %>
+    <% if(i % Math.ceil(options.length/3) === 0){ %>
+        <div class="span4">
+    <% } %>
+    <% var val = opt.constructor ? opt[opt.constructor.id] : opt.value;
+       var displayName = that.displayProperty ? can.getObject(displayProperty, opt) : can.capitalize(val);
+       var sel = can.inArray(val, that.selected) !== -1 ? "checked" : "" %>
+        <label>
+            <input type="checkbox" name="<%= name %>" value="<%= val %>" <%= sel %>>
+            <%= displayName %>
+        </label>
+    <% if((i+1) % Math.ceil(options.length/3) === 0 || i === options.length - 1){ %>
+        </div>
+    <% } %>
+<% }) %>
+</div>
