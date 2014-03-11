@@ -31,7 +31,7 @@ define([
         },
         _asyncReplaceClass: function(item){
             var prop = this.getProperty(item)
-            return prop ? prop.constructor.fullName + "-" + this.getKey() : this.getKey()
+            return prop ? this.getKey() + "-" + prop[prop.constructor.id] : this.getKey()
         },
 
         getDisplay: function(item, context){

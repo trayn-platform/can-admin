@@ -32,6 +32,10 @@ define([
                 })
             }
         },
+        _asyncReplaceClass: function(item){
+            var prop = this.getProperty(item)
+            return prop ? prop.constructor.fullName + "-" + this.getKey() : this.getKey()
+        },
 
         getWidgetTemplate: function(){
             if(this.options.widgetType === "checkbox") {
