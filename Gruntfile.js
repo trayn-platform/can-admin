@@ -5,7 +5,6 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     clean: {
-      build: ['src/views.production.js'],
       dist: ['dist']
     },
     requirejs: {
@@ -69,6 +68,15 @@ module.exports = function (grunt) {
         },
         src: 'src/**/*.js'
       }
+    },
+    watch: {
+      templates: {
+        files: ['src/**/*'],
+        tasks: ['build'],
+        options: {
+          spawn: false,
+        },
+      }
     }
   });
 
@@ -77,11 +85,12 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-less');
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('can-compile');
 
   grunt.registerTask('default', ['test', 'build']);
 
-  grunt.registerTask('build', ['clean:dist', 'cancompile', 'requirejs', 'uglify', 'less', 'clean:build']);
+  grunt.registerTask('build', ['clean:dist', 'cancompile', 'requirejs', 'uglify', 'less']);
   grunt.registerTask('test', ['jshint']);
 
 };

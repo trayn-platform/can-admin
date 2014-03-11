@@ -22,10 +22,12 @@ define([
     },{
         _asyncRenderValue: function(prop, item){
             var that = this
-            this.getOne(item, prop).done(function(mapped){
-                can.$("."+that._asyncReplaceClass(item))
-                    .text(mapped.attr(that.getDisplayProperty()))
-            })
+            if(prop){
+                this.getOne(item, prop).done(function(mapped){
+                    can.$("."+that._asyncReplaceClass(item))
+                        .text(mapped.attr(that.getDisplayProperty()))
+                })
+            }
         },
         _asyncReplaceClass: function(item){
             var prop = this.getProperty(item)
