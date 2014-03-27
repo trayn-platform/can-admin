@@ -2,6 +2,8 @@
 
 JS admin interface to REST services, build with [canJS](http://canjs.com/)
 
+[![Build Status](https://travis-ci.org/insposo/can-admin.svg?branch=master)](https://travis-ci.org/insposo/can-admin)
+
 ## Features
 
 - List view, optionally with paging and search if provided by REST service
