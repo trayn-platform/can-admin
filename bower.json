@@ -17,5 +17,10 @@
     "jquery": "~1.10.0",
     "canjs": "~1.1.8",
     "almond": "~0.2.9"
+  },
+  "devDependencies": {
+    "qunit": "~1.14.0",
+    "jquery": "~1.11.0",
+    "canjs": "~1.1.8"
   }
 }

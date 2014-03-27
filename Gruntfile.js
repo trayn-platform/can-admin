@@ -64,7 +64,8 @@ module.exports = function (grunt) {
     jshint: {
       src: {
         options: {
-          jshintrc: '.jshintrc'
+          jshintrc: '.jshintrc',
+          ignores: 'src/views.production.js'
         },
         src: 'src/**/*.js'
       }
@@ -77,6 +78,9 @@ module.exports = function (grunt) {
           spawn: false,
         },
       }
+    },
+    qunit: {
+      all: ['test/**/*.html']
     }
   });
 
@@ -86,11 +90,12 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('can-compile');
 
-  grunt.registerTask('default', ['test', 'build']);
+  grunt.registerTask('default', ['test', "build"]);
 
   grunt.registerTask('build', ['clean:dist', 'cancompile', 'requirejs', 'uglify', 'less']);
-  grunt.registerTask('test', ['jshint']);
+  grunt.registerTask('test', ['jshint', 'qunit']);
 
 };
