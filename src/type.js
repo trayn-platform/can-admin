@@ -37,6 +37,12 @@ define([
  * @param {string} sortParameter Name of query parameter to define sorting
  *                        (optional, default "orderBy")
  * @param {string} sortProperty Name of property to sort by (optional)
+ * @param {string} sortType Name of query parameter to define ascending/
+ *                        descending sort order (optional, default "orderType")
+ * @param {string} sortAscending Query value for ascending sorting (optional,
+ *                        default "ASC")
+ * @param {string} sortDescending Query value for ascending sorting (optional,
+ *                        default "DESC")
  * @param {object} queryParameters Dictionary with parameters to append to
  *                        findOne, findAll and getCount queries, e.g.:
  *                        {findAll: { filter: "USER"} } will append
@@ -57,7 +63,10 @@ define([
                 n: 25,
                 noLimit: 0
             },
-            sortParameter: "orderBy"
+            sortParameter: "orderBy",
+            sortType: "orderType",
+            sortAscending: "ASC",
+            sortDescending: "DESC"
         }
     },{
         init: function(opts){
@@ -176,6 +185,9 @@ define([
                 )
             if(this.sortParameter && this.sortProperty){
                 params[this.sortParameter] = this.sortProperty
+                if(this.currentSortType){
+                    params[this.sortType] = this.currentSortType
+                }
             }
 
             return this.returnItemList(this.model.findAll(params))

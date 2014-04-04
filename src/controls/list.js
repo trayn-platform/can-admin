@@ -125,6 +125,30 @@ define([
         },
         ".admin-list-reset click": function(){
             this.resetSearch()
+        },
+
+        ".sortable click": function(el, ev){
+            ev.preventDefault()
+            this.element.find(".sortable.active").removeClass("active")
+            el.addClass("active").removeClass("desc asc")
+
+            var orderBy = el.data("orderBy")
+            var type = this.options.type
+            if(orderBy !== type.sortProperty) {
+                type.sortProperty = orderBy
+                delete type.currentSortType
+                el.addClass("asc")
+            } else { // toggle sort direction
+                if(!type.currentSortType || type.currentSortType === type.sortAscending){
+                    type.currentSortType = type.sortDescending
+                    el.addClass("desc")
+                } else {
+                    type.currentSortType = type.sortAscending
+                    el.addClass("asc")
+                }
+            }
+            
+            this.loadPage()
         }
     })
 

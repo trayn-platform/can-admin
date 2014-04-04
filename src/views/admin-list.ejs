@@ -14,7 +14,15 @@
 <table>
     <tr>
         <% list(type.list, function(prop){ %>
-            <th><%= prop.getName() %></th>
+            <th>
+                <% if(prop.options.orderBy){ %>
+                <a href="#" class="sortable asc" data-order-by="<%= prop.options.orderBy %>">
+                    <%= prop.getName() %>
+                </a>
+                <% } else { %>
+                    <%= prop.getName() %>
+                <% } %>
+            </th>
         <% }) %>
     <% if(canUpdate) { %><th>Edit</th><% } %>
     <% if(canDestroy) { %><th>Delete</th><% } %>

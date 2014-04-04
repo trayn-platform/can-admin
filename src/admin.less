@@ -110,6 +110,26 @@
                     text-align: left;
                     padding-left: 20px;
                 }
+                .sortable {
+                    color: #fff;
+                    
+                    &.asc:after {
+                        content: "▼";
+                        visibility: hidden;
+                    }
+                    &.desc:after {
+                        content: "▲";
+                        visibility: hidden;
+                    }
+                }
+
+                &:hover .sortable, .active {
+                    &.asc, &.desc {
+                        &:after {
+                            visibility: visible;
+                        }
+                    }
+                }
             }
 
             a {
