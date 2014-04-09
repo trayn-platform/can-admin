@@ -38,7 +38,14 @@ define([
         "form submit": function(el, ev){
             ev.preventDefault()
 
-            this.item.saveForm(el)
+            var dfd = this.item.saveForm(el)
+
+            if(this.options.inline){
+                var that = this
+                dfd.done(function(item){
+                    that.close(item)
+                })
+            }
         },
 
         ".admin-edit-create click": function(el, ev){
@@ -58,7 +65,7 @@ define([
                     if(newOption){
                         // get currently selected items to prevent data loss when live-bound widgt list is re-drawn
                         var values = that.item.serializeForm(el.closest("form"))
-                        var selectedIds = can.map(values[property.getKey()], function(o){ return o.id })
+                        var selectedIds = can.map(values[property.getKey()] || [], function(o){ return o.id })
                         // add new option and pre-select it
                         selectedIds.push(newOption.id)
                         property.addWidgetOption(that.item.instance, newOption, selectedIds)
