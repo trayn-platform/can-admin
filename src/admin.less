@@ -92,6 +92,13 @@
             margin-left: 0;
         }
 
+        // don't show sort buttons for search results
+        &.admin-list-searchresults .sortable{
+            cursor: default;
+            &:after {
+                display: none;
+            }
+        }
 
         /* Data Tables */
         & > table {

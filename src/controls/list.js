@@ -19,7 +19,11 @@ define([
 
         },
 
-        // "{routes.list} route": "loadPage",
+        "{routes.list} route": function(route){
+            if(route.type === this.options.type.name){
+                this.loadPage()
+            }
+        },
         "{routes.listPage} route": function(route){
             this.loadPage(route.page)
         },
@@ -34,6 +38,7 @@ define([
             .done(function(items){
                 that.items.replace(items)
                 that.initPaging(page)
+                that.element.removeClass("admin-list-searchresults")
             })
         },
 
@@ -70,6 +75,7 @@ define([
         },
 
         loadSearch: function(q){
+            this.element.addClass("admin-list-searchresults")
             var that = this
             this.options.type.getSearch(q).done(function(res){
                 // ignore results if user was still typing while fetching results
@@ -106,24 +112,25 @@ define([
                 el.val("")
                 this.resetSearch()
                 return
+            } else if(ev.which === 13) { // enter
+                return
             }
 
             var that = this
             // wait 200ms before sending request to avoid searching while user is still typing
             window.setTimeout(function(){
-                // exit if user kept typing in the last 200ms
-                if(val !== that.lastSearchTerm){
-                    return
+                // only search if val didn't change
+                if(val === that.lastSearchTerm){
+                    window.location.hash = can.route.url({
+                        route: that.options.routes.listSearch,
+                        type: that.options.type.name,
+                        search: val
+                    })
+                    that.element.find(".admin-list-paging").empty()
                 }
-                window.location.hash = can.route.url({
-                    route: that.options.routes.listSearch,
-                    type: that.options.type.name,
-                    search: val
-                })
-                that.element.find(".admin-list-paging").empty()
             }, 200)
         },
-        ".admin-list-reset click": function(){
+        ".admin-list-reset click": function(el, ev){
             this.resetSearch()
         },
 
