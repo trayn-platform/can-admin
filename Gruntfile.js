@@ -3,6 +3,9 @@
 module.exports = function (grunt) {
 
 
+  // load all grunt tasks
+  require('load-grunt-tasks')(grunt);
+
   grunt.initConfig({
     clean: {
       dist: ['dist']
@@ -81,21 +84,23 @@ module.exports = function (grunt) {
     },
     qunit: {
       all: ['test/**/*.html']
+    },
+    exec: {
+      bower: {
+          command: 'bower install'
+      },
+      npm: {
+          command: 'npm install'
+      }
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-less');
-  grunt.loadNpmTasks('grunt-contrib-requirejs');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('can-compile');
 
-  grunt.registerTask('default', ['test', "build"]);
+  grunt.registerTask('default', ['install', "build", 'test']);
 
   grunt.registerTask('build', ['clean:dist', 'cancompile', 'requirejs', 'uglify', 'less']);
   grunt.registerTask('test', ['jshint', 'qunit']);
+  grunt.registerTask('install', ['exec:npm', 'exec:bower']);
 
 };
