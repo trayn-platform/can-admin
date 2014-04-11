@@ -1,15 +1,17 @@
 <div class="pagination">
   <ul>
     <li class="<%= this.page ? "" : "disabled" %>">
-        <a href="<%= can.route.url({route: route, type: type, page: this.page - 1}) %>">&laquo;</a>
+        <a href="<%= can.route.url({route: route, type: type, page: this.page - 1}) %>" title="Previous Page">&laquo;</a>
     </li>
     <% if(this.pages){ for(var p = 0; p < pages; p++){ %>
-        <li class="<%= (this.page === p || !this.page && p === 0) ? "active" : "" %>">
-            <a href="<%= can.route.url({route: route, type: type, page: p}) %>"><%= p + 1 %></a>
-        </li>
+        <% if(pages < 15 || (p > page - 4 && p < page + 4) || (p + 1) % 10 === 0 || p === 0 || p === pages -1){ %>
+            <li class="<%= (this.page === p || !this.page && p === 0) ? "active" : "" %>">
+                <a href="<%= can.route.url({route: route, type: type, page: p}) %>"><%= p + 1 %></a>
+            </li>
+        <% } %>
     <% } } %>
     <li class="<%= this.next ? "" : "disabled" %>">
-        <a href="<%= can.route.url({route: route, type: type, page: this.page + 1}) %>">&raquo;</a>
+        <a href="<%= can.route.url({route: route, type: type, page: this.page + 1}) %>" title="Next Page">&raquo;</a>
     </li>
   </ul>
 </div>
