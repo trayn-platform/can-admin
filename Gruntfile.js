@@ -92,6 +92,13 @@ module.exports = function (grunt) {
       npm: {
           command: 'npm install'
       }
+    },
+    bump: {
+      options: {
+        files: ['package.json', 'bower.json'],
+        commitFiles: ['package.json', 'bower.json'],
+        pushTo: 'origin'
+      }
     }
   });
 

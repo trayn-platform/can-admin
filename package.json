@@ -1,6 +1,12 @@
 {
   "name": "can-admin",
   "version": "0.1.0-dev",
+  "description": "JS admin interface to REST services, build with canJS",
+  "homepage": "http://www.github.com/insposo/can-admin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/insposo/can-admin.git"
+  },
   "engines": {
     "node": ">= 0.8.0"
   },
@@ -16,7 +22,8 @@
     "grunt-contrib-watch": "~0.5.3",
     "grunt-contrib-qunit": "~0.4.0",
     "load-grunt-tasks": "~0.4.0",
-    "grunt-exec": "~0.4.5"
+    "grunt-exec": "~0.4.5",
+    "grunt-bump": "0.0.13"
   },
   "scripts": {
     "test": "grunt test --verbose"
