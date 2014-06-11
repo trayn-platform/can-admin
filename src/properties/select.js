@@ -12,7 +12,10 @@ define([
  * @return {can.Construct}
  */
     var Select = Base.extend({
-
+        defaults: {
+            displayProperty: "name"
+        }
+    },{
         getSelected: function(item){
             return item[this.getKey()]
         },
@@ -32,7 +35,8 @@ define([
                 name: this.getKey(),
                 multiple: this.options.multiple,
                 options: this.options.values,
-                selected: this.getSelected(item)
+                selected: this.getSelected(item),
+                displayProperty: this.options.displayProperty
             })
         }
     })
