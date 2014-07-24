@@ -13,32 +13,67 @@ var findOneFromAll = function(model, id){
 
 // Our models
 var Pets = can.Model.extend({
-    findAll: "/example/data/pets.json",
-    findOne: function(params){
-        return findOneFromAll(this, params.id)
-    }
+    findAll: "/pets",
+    create: "/pets",
+    findOne: "/pets/{id}",
+    update: "/pets/{id}",
+    destroy: "/pets/{id}"
 }, {})
 
 var People = can.Model.extend({
-    findAll: "/example/data/people.json",
-    findOne: function(params){
-        return findOneFromAll(this, params.id)
-    },
+    findAll: "/people",
+    create: "/people",
+    findOne: "/people/{id}",
+    update: "/people/{id}",
+    destroy: "/people/{id}",
 
     // explicitely set up relation to Pets model and how to serialize data
-    attributes: {
-        pets: "Pets.models"
-    },
-    serialize: {
-        "Pets": function(pets){
-            return $.map(pets, function(pet){
-                return {
-                    id: pet.id
-                }
-            })
+    define: {
+        pets: {
+            Type: Pets.List,
+            serialize: function(pets){
+                return can.map(pets, function(pet){
+                    return {
+                        id: pet.id
+                    }
+                })
+            }
         }
     }
 }, {})
+
+
+// prepare fixtures
+var PETS = ["Goldfish", "Cat", "Hamster"]
+var petStore = can.fixture.store(PETS.length, function(i) {
+    return {
+        id: i + 1,
+        name: PETS[i]
+    }
+})
+can.fixture({
+    "GET /pets": petStore.findAll,
+    "POST /pets": petStore.create,
+    "GET /pets/{id}": petStore.findOne,
+    "PUT /pets/{id}": petStore.update,
+    "DELETE /pets/{id}": petStore.destroy,
+})
+var PEOPLE = ["Peter", "Paul", "Mary"]
+var peopleStore = can.fixture.store(PEOPLE.length, function(i) {
+    return {
+        id: i + 1,
+        name: PEOPLE[i],
+        pets: [{id: can.fixture.rand(1, PETS.length)}]
+    }
+})
+can.fixture({
+    "GET /people": peopleStore.findAll,
+    "POST /people": peopleStore.create,
+    "GET /people/{id}": peopleStore.findOne,
+    "PUT /people/{id}": peopleStore.update,
+    "DELETE /people/{id}": peopleStore.destroy
+})
+can.fixture.delay = 100;
 
 
 // A very minimalisitic Control
