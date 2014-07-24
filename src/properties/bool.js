@@ -21,7 +21,7 @@ define([
         },
         getWidget: function(item){
             this.widgetCallback("input[name='"+this.getKey()+"']")
-            return can.view.render("../views/admin-checkbox.ejs", {
+            return can.view.render("../views/prop-checkbox.mustache", {
                 name: this.getKey(),
                 value: this.options.value,
                 checked: this.isOn(item)

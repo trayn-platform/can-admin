@@ -4,11 +4,8 @@ define([
 
     var List = can.Control.extend({
         init: function(el, options) {
-            this.items = new can.Observe.List()
-            el.html(can.view("../views/admin-list.ejs", {
-                type: options.type,
-                items: this.items
-            }))
+            this.items = new can.List([])
+            this.renderPage()
 
             if(options.search){
                 el.find(".admin-list-search").val(options.search)
@@ -31,15 +28,47 @@ define([
             this.loadSearch(route.search)
         },
 
+        renderPage: function() {
+            this.element.html(can.view("../views/list.mustache", {
+                type: this.options.type,
+                canCreate: this.options.type.canCreate(),
+                canSearch: this.options.type.canSearch(),
+                canUpdate: this.options.type.canUpdate(),
+                canDestroy: this.options.type.canDestroy(),
+                items: this.items
+            }))
+        },
+
         loadPage: function(page){
             var that = this
             page = can.isNumeric(page) ? page : undefined
             this.options.type.getAll(page)
             .done(function(items){
-                that.items.replace(items)
+                that.displayItems(items)
                 that.initPaging(page)
                 that.element.removeClass("admin-list-searchresults")
             })
+        },
+
+        displayItems: function(items){
+            var properties = this.options.type.list
+            var displayItems = []
+            items.forEach(function(item, i){
+                var displayItem = {
+                    route: item.getRoute(),
+                    label: item.getDisplay(properties[0], "list"),
+                    properties: [],
+                    cssClass: i%2 === 0 ? "even" : "odd",
+                    item: item
+                }
+                properties.forEach(function(prop, i){
+                    if(i > 0) {
+                        displayItem.properties.push(item.getDisplay(prop, "list"))
+                    }
+                })
+                displayItems.push(displayItem)
+            })
+            this.items.replace(displayItems)
         },
 
         initPaging: function(page){
@@ -59,18 +88,36 @@ define([
                 if(count <= opts.max || !that.element){
                     return
                 }
-                
-                page = page || 0
-                that.element.find(".admin-list-paging").html(can.view("../views/admin-paginate.ejs", can.extend({
-                    route: that.options.routes.listPage,
-                    type: that.options.type.name,
-                    count: count,
-                    pages: Math.ceil(count/opts.max),
-                    next: count ?
-                        page < Math.floor(count/opts.max) :
-                        !lastPage,
-                    page: parseInt(page)
-                }, opts)))
+
+                var route = that.options.routes.listPage
+                var type = that.options.type.name
+                var page = parseInt(page) || 0
+                var numPages = Math.floor(count/opts.max)
+                var hasNext = count ?
+                        page < numPages :
+                        !lastPage
+
+                var pages = []
+                for(var p = 0; p < numPages; p++){
+                    if(numPages < 15 ||                     // display all pages if there are less than 15 or ...
+                        (p > page - 4 && p < page + 4) ||   // display 3 pages before and after current page
+                        (p + 1) % 10 === 0 ||               //   and every tenth page
+                        p === 0 ||                          //   and the first
+                        p === numPages -1                   //   and the last
+                    ){
+                        pages.push({
+                            page: p+1,
+                            active: page === p || !page && p === 0,
+                            url: can.route.url({route: route, type: type, page: p})
+                        })
+                    }
+                }
+
+                that.element.find(".admin-list-paging").html(can.view("../views/paginate.mustache", {
+                    next: hasNext ? can.route.url({route: route, type: type, page: page + 1}) : undefined,
+                    prev: page > 0 ? can.route.url({route: route, type: type, page: page - 1}) : undefined,
+                    pages: pages
+                }))
             })
         },
 
@@ -80,7 +127,7 @@ define([
             this.options.type.getSearch(q).done(function(res){
                 // ignore results if user was still typing while fetching results
                 if(q === that.lastSearchTerm || !that.lastSearchTerm){
-                    that.items.replace(res)
+                    that.displayItems(res)
                 }
             })
         },
@@ -94,7 +141,8 @@ define([
         ".delete click": function(el, ev){
             ev.preventDefault()
             var row = el.closest("tr")
-            var item = row.data("item")
+            var itemCompute = row.data("item")
+            var item = itemCompute()
             if(window.confirm("Delete '" + item.getName() + "'?")){
                 item.destroy()
                 .done(function(){

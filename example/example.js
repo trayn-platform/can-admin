@@ -7,7 +7,7 @@ var findOneFromAll = function(model, id){
                 obj = p
             }
         })
-        return new model(obj)
+        return obj
     })
 }
 

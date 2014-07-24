@@ -36,7 +36,7 @@ define([
 
         getDisplay: function(item, context){
             var val = this._asyncRenderValue(this.getProperty(item), item, context)
-            return can.view.render("../views/admin-prop.ejs", {
+            return can.view.render("../views/prop-display.mustache", {
                 cssClass: this._asyncReplaceClass(item),
                 val: val
             })
@@ -50,23 +50,25 @@ define([
         },
         getWidgetTemplate: function(){
             if(this.options.widgetType === "radio") {
-                return "../views/admin-radio.ejs"
+                return "../views/prop-radio.mustache"
             }
-            return "../views/admin-select.ejs"
+            return "../views/prop-select.mustache"
         },
         getWidget: function(item){
             this.viewParams = {
                 name: this.getKey(),
-                displayProperty: this.getDisplayProperty(),
-                options: new can.Observe.List([]),
-                selected: this.getSelectedId(item),
+                options: new can.List([]),
                 cssClass: this._asyncReplaceClass(item),
                 multiple: this.isList
             }
 
             var that = this
             this.getAll(item).done(function(all){
-                that.viewParams.options.replace(all)
+                var options = []
+                all.forEach(function(opt){
+                    options.push(that.prepareOptionForDisplay(opt, item))
+                })
+                that.viewParams.options.replace(options)
                 that.widgetCallback("."+that._asyncReplaceClass(item))
             })
 
@@ -75,8 +77,20 @@ define([
         },
         addWidgetOption: function(item, option, selectedIds){
             this.viewParams.selected = selectedIds || this.viewParams.selected
-            this.viewParams.options.push(option)
+            this.viewParams.options.push(this.prepareOptionForDisplay(option, item))
             can.$("."+this._asyncReplaceClass(item)).trigger("change")
+        },
+        prepareOptionForDisplay: function(opt, item){
+            var val = opt.constructor && opt.constructor.id ? opt[opt.constructor.id] : opt.value;
+            var displayProperty = this.getDisplayProperty()
+            var selectedIds = this.getSelectedId(item)
+            return {
+                value: val,
+                displayName: displayProperty ? can.getObject(displayProperty, opt) : can.capitalize(val),
+                selected: this.isList ?
+                    can.inArray(val, selectedIds) !== -1 :
+                    val === selectedIds
+            }
         },
 
         getDisplayProperty: function(){
@@ -84,8 +98,13 @@ define([
         },
 
         getModel: function(item){
-            var modelName = item.constructor.attributes[this.getKey()].replace(/\.models?$/,"")
-            return can.getObject(modelName, window)
+            if(item.constructor.attributes) {
+                var modelName = item.constructor.attributes[this.getKey()].replace(/\.models?$/,"")
+                return can.getObject(modelName, window)
+            } else {
+                item.constructor.define[this.getKey()].Type
+            }
+            
         },
         getProperty: function(item){
             return item[this.getKey()]

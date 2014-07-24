@@ -66,10 +66,11 @@ define([
 
         init: function(){
             this.initHtml()
+            can.route.ready()
         },
 
         initHtml: function(){
-            this.element.html(can.view("../views/admin.ejs", {
+            this.element.html(can.view("../views/admin.mustache", {
                 types: this.options.types,
                 pages: this.options.pages
             }))
@@ -143,7 +144,7 @@ define([
             }
         },
         appendToBreadcrumb: function(text, url){
-            this.element.find(".admin-breadcrumb").append(can.view("../views/breadcrumb.ejs", {
+            this.element.find(".admin-breadcrumb").append(can.view("../views/breadcrumb.mustache", {
                 url: url,
                 text: text
             }))

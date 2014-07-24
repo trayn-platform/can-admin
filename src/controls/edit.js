@@ -15,12 +15,32 @@ define([
                     el.find(".admin-edit-form") :
                     el
 
-                target.html(can.view("../views/admin-edit.ejs", {
+                target.html(can.view("../views/edit.mustache", {
                     type: options.type,
+                    canUpdate: options.type.canUpdate(),
                     inline: options.inline,
-                    item: item
+                    item: item,
+                    properties: that.getEditProperties()
                 }))
             })
+        },
+
+        getEditProperties: function(){
+            var properties = []
+            var item = this.item
+            this.options.type.edit.forEach(function(prop){
+                if(!item.instance.isNew() || prop.isEnabled(item.instance.isNew() ? "create" : "update")) {
+                    var propType = prop.getType()
+                    properties.push({
+                        key: prop.getKey(),
+                        label: prop.getName(),
+                        widget: item.getWidget(prop),
+                        canCreate: propType ? propType.canCreate() : false,
+                        property: prop
+                    })
+                }
+            }, this)
+            return properties
         },
 
         close: function(item){
@@ -54,7 +74,7 @@ define([
             var type = property.getType()
             var that = this
 
-            this.element.after(can.view("../views/admin-edit-inline.ejs", {
+            this.element.after(can.view("../views/edit-inline.mustache", {
                 type: type
             }))
 

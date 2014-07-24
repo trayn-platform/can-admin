@@ -1,0 +1,15 @@
+<div class="pagination">
+  <ul>
+    <li class="{{#unless prev}}disabled{{/unless}}">
+        <a href="{{prev}}" title="Previous Page">&laquo;</a>
+    </li>
+    {{#pages}}
+    <li class="{{#active}}active{{/active}}">
+        <a href="{{url}}">{{page}}</a>
+    </li>
+    {{/pages}}
+    <li class="{{#unless prev}}next{{/unless}}">
+        <a href="{{next}}" title="Next Page">&raquo;</a>
+    </li>
+  </ul>
+</div>

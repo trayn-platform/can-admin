@@ -1,0 +1,46 @@
+<header>
+    <h2>{{type.getNamePlural}}</h2>
+    {{#if canCreate}}
+        <a class="btn btn-primary" href="{{type.getCreateRoute}}"><i class="icon-plus"></i> Create new</a>
+    {{/if}}
+    {{#if canSearch}}
+        <form class="form-search">
+            <input type="text" class="admin-list-search search-query" placeholder="Search">
+            <button type="reset" class="btn admin-list-reset">Clear</button>
+        </form>
+    {{/if}}
+</header>
+<table>
+    <tr>
+        {{#each type.list}}
+            <th>
+                {{#if options.orderBy}}
+                <a href="#" class="sortable asc" data-order-by="{{options.orderBy}}">
+                    {{getName}}
+                </a>
+                {{else}}
+                    {{getName}}
+                {{/if}}
+            </th>
+        {{/each}}
+        {{#if canUpdate}}<th>Edit</th>{{/if}}
+        {{#if canDestroy}}<th>Delete</th>{{/if}}
+    </tr>
+    <tbody class="items">
+        {{#each items}}
+        <tr {{#with item}}{{data "item"}}{{/with}} class="{{cssClass}}">
+            <td>
+                <a href="{{route}}">{{label}}</a>
+            </td>
+            {{#properties}}
+            <td>
+                {{{.}}}
+            </td>
+            {{/properties}}
+            {{#if canUpdate}}<td><a href="{{route}}">Edit</a></td>{{/if}}
+            {{#if canDestroy}}<td><a href="#" class="delete">Delete</a></td>{{/if}}
+        </tr>
+        {{/each}}
+    </tbody>
+</table>
+<div class="admin-list-paging"></div>

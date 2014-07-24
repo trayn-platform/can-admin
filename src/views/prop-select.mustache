@@ -1,0 +1,11 @@
+<select class="{{cssClass}}"
+    style="min-width: 220px; max-width: 600px;"
+    id="admin-edit-{{name}}"
+    name="{{name}}"
+    {{#multiple}}multiple size='3'{{/multiple}}>
+    {{#each options}}
+        <option value="{{value}}"{{#selected}} selected{{/selected}}>
+            {{displayName}}
+        </option>
+    {{/each}}
+</select>

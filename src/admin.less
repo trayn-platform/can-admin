@@ -164,12 +164,12 @@
                     }
                 }
 
-                &:hover td {
-                    background: #f2f2f2;
-                }
-
                 &.even td {
                     background: #f6f6f6;
+                }
+
+                &:hover td {
+                    background: #f2f2f2;
                 }
             }
         }
@@ -177,6 +177,11 @@
 
     a.admin-edit-create {
         margin-left: 5px;
+    }
+    .admin-list-checkbox {
+        -moz-column-count: 3;
+        -webkit-column-count: 3;
+        columns: 3;
     }
     .admin-edit-inline {
         position: fixed;

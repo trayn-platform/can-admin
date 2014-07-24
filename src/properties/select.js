@@ -31,7 +31,7 @@ define([
         },
         getWidget: function(item){
             this.widgetCallback("select[name='"+this.getKey()+"']")
-            return can.view.render("../views/admin-select.ejs", {
+            return can.view.render("../views/prop-select.mustache", {
                 name: this.getKey(),
                 multiple: this.options.multiple,
                 options: this.options.values,

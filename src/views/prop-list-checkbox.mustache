@@ -1,0 +1,8 @@
+<div class="row-fluid admin-list-checkbox {{cssClass}}">
+{{#each options}}
+    <label>
+        <input type="checkbox" name="{{name}}" value="{{value}}"{{#selected}} checked{{/selected}}>
+        {{displayName}}
+    </label>
+{{/each}}
+</div>

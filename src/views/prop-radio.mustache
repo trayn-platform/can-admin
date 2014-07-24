@@ -1,0 +1,8 @@
+<div class="{{cssClass}}">
+{{#each options}}
+    <label>
+        <input type="radio" name="{{name}}" value="{{value}}"{{#selected}} checked{{/selected}}>
+        {{displayName}}
+    </label>
+{{/each}}
+</div>

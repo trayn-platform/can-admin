@@ -39,9 +39,9 @@ define([
 
         getWidgetTemplate: function(){
             if(this.options.widgetType === "checkbox") {
-                return "../views/admin-list-checkbox.ejs"
+                return "../views/prop-list-checkbox.mustache"
             }
-            return "../views/admin-select.ejs"
+            return "../views/prop-select.mustache"
         },
         
         getSelectedId: function(item){

@@ -1,0 +1,32 @@
+<div class="can-admin">
+    <header>
+        <h2>Admin Area</h2>
+    </header>
+    <nav class="admin-breadcrumb"></nav>
+    <nav class="admin-entities">
+        <ul>
+            {{#types}}
+                <li>
+                    <a href="{{getRoute}}">
+                        <i class="icon-{{getIcon}}"></i>
+                        {{getNamePlural}}
+                    </a>
+                </li>
+            {{/types}}
+        </ul>
+        {{#if pages}}
+        <hr>
+        <ul>
+            {{#pages}}
+                <li>
+                    <a href="{{getRoute}}">
+                        <i class="icon-{{getIcon}}"></i>
+                        {{getName}}
+                    </a>
+                </li>
+            {{/pages}}
+        </ul>
+        {{/if}}
+    </nav>
+    <div class="admin-content"></div>
+</div>

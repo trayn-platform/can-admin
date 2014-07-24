@@ -1,0 +1,23 @@
+<form class="form-horizontal">
+    {{#properties}}
+    <div class="control-group">
+        <label class="control-label" for="admin-edit-{{key}}">{{label}}</label>
+        <div class="controls">
+            {{{widget}}}
+            {{#if canCreate}}
+                <a {{#with property}}{{data "property"}}{{/with}} href="#" class="admin-edit-create">Create new</a>
+            {{/if}}
+        </div>
+    </div>
+    {{/properties}}
+    {{#if canUpdate}}
+    <div class="control-group">
+        <div class="controls">
+            <button type="submit" class="btn btn-primary">Save</button>
+            {{#if inline}}
+            <button class="btn admin-edit-close">Close</button>
+            {{/if}}
+        </div>
+    </div>
+    {{/if}}
+</form>

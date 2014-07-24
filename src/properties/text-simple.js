@@ -12,7 +12,7 @@ define([
     var TextSimple = Base.extend({
         getWidget: function(item){
             this.widgetCallback("input[name='"+this.getKey()+"']")
-            return can.view.render("../views/admin-input.ejs", {
+            return can.view.render("../views/prop-input.mustache", {
                 name: this.getKey(),
                 value: this.getDisplay(item)
             })
