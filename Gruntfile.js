@@ -42,10 +42,12 @@ module.exports = function (grunt) {
     },
     cancompile: {
       dist: {
-        src: ['src/**/*.ejs'],
-        out: 'src/views.production.js',
-        wrapper: 'define(function() { {{{content}}} });',
-        version: '1.1.8'
+        src: ['src/**/*.mustache'],
+        dest: 'src/views.production.js',
+        options: {
+          wrapper: 'define(function() { {{{content}}} });',
+          version: '2.1.2'
+        }
       }
     },
     less: {
