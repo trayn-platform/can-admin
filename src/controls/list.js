@@ -91,14 +91,14 @@ define([
 
                 var route = that.options.routes.listPage
                 var type = that.options.type.name
-                var page = parseInt(page) || 0
+                page = parseInt(page) || 0
                 var numPages = Math.floor(count/opts.max)
                 var hasNext = count ?
                         page < numPages :
                         !lastPage
 
                 var pages = []
-                for(var p = 0; p < numPages; p++){
+                for(var p = 0; p <= numPages; p++){
                     if(numPages < 15 ||                     // display all pages if there are less than 15 or ...
                         (p > page - 4 && p < page + 4) ||   // display 3 pages before and after current page
                         (p + 1) % 10 === 0 ||               //   and every tenth page
