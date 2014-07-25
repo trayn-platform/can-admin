@@ -15,13 +15,15 @@ JS admin interface to REST services, build with [canJS](http://canjs.com/)
 ## Requirements
 
 - The jQuery version of 
-  [canJS v1.1.8](https://api.github.com/repos/bitovi/canjs.com/zipball/v1.1.8)
+  [CanJS v2.1.2](https://api.github.com/repos/bitovi/canjs.com/zipball/v2.1.2)
 - [jQuery](http://jquery.com/download/)
 - A REST service to connect to.
   Attributes referencing other entities have to be expressed as stub objects
-  for the _Mapped_ and _ListMapped_  properties to work. Also the relation has
-  be defined in the canJS model as
-  [attribute](http://canjs.com/1.1/docs/can.Observe.attributes.html).
+  for the _Mapped_ and _ListMapped_  properties to work. Also thier Type has to
+  be
+  [defined](http://canjs.com/2.1/docs/can.Map.prototype.define.TypeConstructor.html)
+  in the CanJS model or written as
+  [attribute](http://canjs.com/2.1/docs/can.Map.attributes.html).
   e.g. to reference the pet #3 from a person the JSON might look like this:
   `
   {
@@ -65,4 +67,4 @@ new CanAdmin.Controls.Main("#admin", {
 })
 ```
 
-See [example](https://github.com/insposo/can-admin/example/) for a working example.
+See [example](https://github.com/insposo/can-admin/tree/master/example/) for a working example.
