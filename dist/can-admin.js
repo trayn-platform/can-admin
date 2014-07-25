@@ -514,7 +514,7 @@ define('properties/text-simple',[
     var TextSimple = Base.extend({
         getWidget: function(item){
             this.widgetCallback("input[name='"+this.getKey()+"']")
-            return can.view.render("../views/admin-input.ejs", {
+            return can.view.render("../views/prop-input.mustache", {
                 name: this.getKey(),
                 value: this.getDisplay(item)
             })
@@ -540,7 +540,7 @@ define('properties/text-long',[
     var TextLong = TextSimple.extend({
         getWidget: function(item){
             this.widgetCallback("textarea[name='"+this.getKey()+"']")
-            return can.view.render("../views/admin-textarea.ejs", {
+            return can.view.render("../views/prop-textarea.mustache", {
                 name: this.getKey(),
                 value: this.getDisplay(item),
                 rows: this.options.rows || 3
@@ -585,7 +585,7 @@ define('properties/select',[
         },
         getWidget: function(item){
             this.widgetCallback("select[name='"+this.getKey()+"']")
-            return can.view.render("../views/admin-select.ejs", {
+            return can.view.render("../views/prop-select.mustache", {
                 name: this.getKey(),
                 multiple: this.options.multiple,
                 options: this.options.values,
@@ -676,7 +676,7 @@ define('properties/mapped',[
 
         getDisplay: function(item, context){
             var val = this._asyncRenderValue(this.getProperty(item), item, context)
-            return can.view.render("../views/admin-prop.ejs", {
+            return can.view.render("../views/prop-display.mustache", {
                 cssClass: this._asyncReplaceClass(item),
                 val: val
             })
@@ -690,23 +690,25 @@ define('properties/mapped',[
         },
         getWidgetTemplate: function(){
             if(this.options.widgetType === "radio") {
-                return "../views/admin-radio.ejs"
+                return "../views/prop-radio.mustache"
             }
-            return "../views/admin-select.ejs"
+            return "../views/prop-select.mustache"
         },
         getWidget: function(item){
             this.viewParams = {
                 name: this.getKey(),
-                displayProperty: this.getDisplayProperty(),
-                options: new can.Observe.List([]),
-                selected: this.getSelectedId(item),
+                options: new can.List([]),
                 cssClass: this._asyncReplaceClass(item),
                 multiple: this.isList
             }
 
             var that = this
             this.getAll(item).done(function(all){
-                that.viewParams.options.replace(all)
+                var options = []
+                all.forEach(function(opt){
+                    options.push(that.prepareOptionForDisplay(opt, item))
+                })
+                that.viewParams.options.replace(options)
                 that.widgetCallback("."+that._asyncReplaceClass(item))
             })
 
@@ -715,8 +717,20 @@ define('properties/mapped',[
         },
         addWidgetOption: function(item, option, selectedIds){
             this.viewParams.selected = selectedIds || this.viewParams.selected
-            this.viewParams.options.push(option)
+            this.viewParams.options.push(this.prepareOptionForDisplay(option, item))
             can.$("."+this._asyncReplaceClass(item)).trigger("change")
+        },
+        prepareOptionForDisplay: function(opt, item){
+            var val = opt.constructor && opt.constructor.id ? opt[opt.constructor.id] : opt.value;
+            var displayProperty = this.getDisplayProperty()
+            var selectedIds = this.getSelectedId(item)
+            return {
+                value: val,
+                displayName: displayProperty ? can.getObject(displayProperty, opt) : can.capitalize(val),
+                selected: this.isList ?
+                    can.inArray(val, selectedIds) !== -1 :
+                    val === selectedIds
+            }
         },
 
         getDisplayProperty: function(){
@@ -724,8 +738,13 @@ define('properties/mapped',[
         },
 
         getModel: function(item){
-            var modelName = item.constructor.attributes[this.getKey()].replace(/\.models?$/,"")
-            return can.getObject(modelName, window)
+            if(item.constructor.attributes) {
+                var modelName = item.constructor.attributes[this.getKey()].replace(/\.models?$/,"")
+                return can.getObject(modelName, window)
+            } else {
+                return item.constructor.define[this.getKey()].Type
+            }
+            
         },
         getProperty: function(item){
             return item[this.getKey()]
@@ -804,9 +823,9 @@ define('properties/list-mapped',[
 
         getWidgetTemplate: function(){
             if(this.options.widgetType === "checkbox") {
-                return "../views/admin-list-checkbox.ejs"
+                return "../views/prop-list-checkbox.mustache"
             }
-            return "../views/admin-select.ejs"
+            return "../views/prop-select.mustache"
         },
         
         getSelectedId: function(item){
@@ -884,7 +903,7 @@ define('properties/bool',[
         },
         getWidget: function(item){
             this.widgetCallback("input[name='"+this.getKey()+"']")
-            return can.view.render("../views/admin-checkbox.ejs", {
+            return can.view.render("../views/prop-checkbox.mustache", {
                 name: this.getKey(),
                 value: this.options.value,
                 checked: this.isOn(item)
@@ -925,66 +944,979 @@ define('properties',[
     return Properties
 })
 ;
-define('views',[],function() { can.view.preload('views_admin-checkbox_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<input type=\"checkbox\" value=\"");___v1ew.push(can.view.txt(1,'input','value',this,function(){ return  value }));___v1ew.push("\" name=\"");___v1ew.push(can.view.txt(1,'input','name',this,function(){ return  name }));___v1ew.push("\" id=\"admin-edit-");___v1ew.push(can.view.txt(1,'input','id',this,function(){ return  name }));___v1ew.push("\"");___v1ew.push(can.view.txt(1,'input',1,this,function(){ return  this.checked ? " checked" :""}));___v1ew.push("",can.view.pending(),">");___v1ew.push("\n");; return ___v1ew.join('')}} }));
-can.view.preload('views_admin-edit-inline_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<div class=\"admin-edit-inline\">\n    <div class=\"admin-edit-overlay\">\n        <h2>");___v1ew.push(can.view.txt(1,'h2',0,this,function(){ return  type.getName() }));___v1ew.push("</h2>\n        <div class=\"admin-edit-form\"></div>\n    </div>\n</div>\n");; return ___v1ew.join('')}} }));
-can.view.preload('views_admin-edit_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<form class=\"form-horizontal\">\n    ");___v1ew.push(can.view.txt(0,'form',0,this,function(){var ___v1ew = []; list(type.edit, function(prop){ ___v1ew.push("\n    ");___v1ew.push(can.view.txt(0,'form',0,this,function(){var ___v1ew = []; if(!item.instance.isNew() || prop.isEnabled(item.instance.isNew() ? "create" : "update")) { ___v1ew.push("\n    <div class=\"control-group\">\n        <label class=\"control-label\" for=\"admin-edit-");___v1ew.push(can.view.txt(1,'label','for',this,function(){ return  prop.getKey() }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push(can.view.txt(1,'label',0,this,function(){ return  prop.getName() }));___v1ew.push("</label>\n        <div class=\"controls\">\n            ");___v1ew.push(can.view.txt(0,'div',0,this,function(){ return  item.getWidget(prop) }));___v1ew.push("\n            "); var propType = prop.getType() ;;___v1ew.push("\n            ");___v1ew.push(can.view.txt(0,'div',0,this,function(){var ___v1ew = []; if(propType && propType.canCreate()){ ___v1ew.push("\n                <a ");___v1ew.push(can.view.txt(1,'a',1,this,function(){ return can.proxy(function(__){var el=can.$(__); el.data("property", prop) }, this);}));___v1ew.push(" href=\"#\" class=\"admin-edit-create\"",can.view.pending(),">");___v1ew.push("Create new</a>\n            "); } ;return ___v1ew.join('')}));
-___v1ew.push("\n        </div>\n    </div>\n    "); } ;return ___v1ew.join('')}));
-___v1ew.push("\n    "); }) ;return ___v1ew.join('')}));
-___v1ew.push("\n    ");___v1ew.push(can.view.txt(0,'form',0,this,function(){var ___v1ew = []; if(type.canUpdate()) { ___v1ew.push("\n    <div class=\"control-group\">\n        <div class=\"controls\">\n            <button type=\"submit\" class=\"btn btn-primary\">Save</button>\n            ");___v1ew.push(can.view.txt(0,'div',0,this,function(){var ___v1ew = []; if(this.inline) { ___v1ew.push("\n            <button class=\"btn admin-edit-close\">Close</button>\n            "); } ;return ___v1ew.join('')}));
-___v1ew.push("\n        </div>\n    </div>\n    "); } ;return ___v1ew.join('')}));
-___v1ew.push("\n</form>\n");; return ___v1ew.join('')}} }));
-can.view.preload('views_admin-input_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<input type=\"text\" name=\"");___v1ew.push(can.view.txt(1,'input','name',this,function(){ return  name }));___v1ew.push("\" id=\"admin-edit-");___v1ew.push(can.view.txt(1,'input','id',this,function(){ return  name }));___v1ew.push("\" value=\"");___v1ew.push(can.view.txt(1,'input','value',this,function(){ return  value }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("\n");; return ___v1ew.join('')}} }));
-can.view.preload('views_admin-list-checkbox_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<div class=\"row-fluid ");___v1ew.push(can.view.txt(1,'div','class',this,function(){ return  this.cssClass ? this.cssClass : ''}));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("\n"); var that = this ;;___v1ew.push("\n");___v1ew.push(can.view.txt(0,'div',0,this,function(){var ___v1ew = []; list(options, function(opt, i) { ___v1ew.push("\n    ");___v1ew.push(can.view.txt(0,'div',0,this,function(){var ___v1ew = []; if(i % Math.ceil(options.length/3) === 0){ ___v1ew.push("\n        <div class=\"span4\">\n    "); } ;return ___v1ew.join('')}));
-___v1ew.push("\n    "); var val = opt.constructor && opt.constructor.id ? opt[opt.constructor.id] : opt.value;
-       var displayName = that.displayProperty ? can.getObject(displayProperty, opt) : can.capitalize(val);
-       var sel = can.inArray(val, that.selected) !== -1 ? "checked" : "" ;;___v1ew.push("\n        <label>\n            <input type=\"checkbox\" name=\"");___v1ew.push(can.view.txt(1,'input','name',this,function(){ return  name }));___v1ew.push("\" value=\"");___v1ew.push(can.view.txt(1,'input','value',this,function(){ return  val }));___v1ew.push("\" ");___v1ew.push(can.view.txt(1,'input',1,this,function(){ return  sel }));___v1ew.push("",can.view.pending(),">");___v1ew.push("\n            ");___v1ew.push(can.view.txt(1,'input',0,this,function(){ return  displayName }));___v1ew.push("\n        </label>\n    ");___v1ew.push(can.view.txt(0,'/label',0,this,function(){var ___v1ew = []; if((i+1) % Math.ceil(options.length/3) === 0 || i === options.length - 1){ ___v1ew.push("\n        </div>\n    "); } ;return ___v1ew.join('')}));
-___v1ew.push("\n"); }) ;return ___v1ew.join('')}));
-___v1ew.push("\n</div>\n");; return ___v1ew.join('')}} }));
-can.view.preload('views_admin-list_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<header>\n    <h2>");___v1ew.push(can.view.txt(1,'h2',0,this,function(){ return  type.getNamePlural() }));___v1ew.push("</h2>\n");___v1ew.push(can.view.txt(0,'header',0,this,function(){var ___v1ew = []; if(type.canCreate()) { ___v1ew.push("\n    <a class=\"btn btn-primary\" href=\"");___v1ew.push(can.view.txt(1,'a','href',this,function(){ return  type.getCreateRoute() }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("<i class=\"icon-plus\"></i> Create new</a>\n"); } ;return ___v1ew.join('')}));
-___v1ew.push("\n");___v1ew.push(can.view.txt(0,'header',0,this,function(){var ___v1ew = []; if(type.canSearch()) { ___v1ew.push("\n    <form class=\"form-search\">\n        <input type=\"text\" class=\"admin-list-search search-query\" placeholder=\"Search\">\n        <button type=\"reset\" class=\"btn admin-list-reset\">Clear</button>\n    </form>\n"); } ;return ___v1ew.join('')}));
-___v1ew.push("\n</header>\n"); var canDestroy = type.canDestroy(), canUpdate = type.canUpdate()  ;;___v1ew.push("\n<table>\n    <tr>\n        ");___v1ew.push(can.view.txt(0,'tr',0,this,function(){var ___v1ew = []; list(type.list, function(prop){ ___v1ew.push("\n            <th>\n                ");___v1ew.push(can.view.txt(0,'th',0,this,function(){var ___v1ew = []; if(prop.options.orderBy){ ___v1ew.push("\n                <a href=\"#\" class=\"sortable asc\" data-order-by=\"");___v1ew.push(can.view.txt(1,'a','data-order-by',this,function(){ return  prop.options.orderBy }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("\n                    ");___v1ew.push(can.view.txt(1,'a',0,this,function(){ return  prop.getName() }));___v1ew.push("\n                </a>\n                "); } else { ;;___v1ew.push("\n                    ");___v1ew.push(can.view.txt(1,'th',0,this,function(){ return  prop.getName() }));___v1ew.push("\n                "); } ;return ___v1ew.join('')}));
-___v1ew.push("\n            </th>\n        "); }) ;return ___v1ew.join('')}));
-___v1ew.push("\n    ");___v1ew.push(can.view.txt(0,'tr',0,this,function(){var ___v1ew = []; if(canUpdate) { ___v1ew.push("<th>Edit</th>"); } ;return ___v1ew.join('')}));
-___v1ew.push("\n    ");___v1ew.push(can.view.txt(0,'tr',0,this,function(){var ___v1ew = []; if(canDestroy) { ___v1ew.push("<th>Delete</th>"); } ;return ___v1ew.join('')}));
-___v1ew.push("\n    </tr>\n    ");___v1ew.push(can.view.txt(0,'table',0,this,function(){var ___v1ew = []; items.each(function(item, index){ ___v1ew.push("\n    <tr ");___v1ew.push(can.view.txt(1,'tr',1,this,function(){ return can.proxy(function(__){var el=can.$(__); el.data("item", item)}, this);}));___v1ew.push(" class=\"");___v1ew.push(can.view.txt(1,'tr','class',this,function(){ return  index%2 == 0 ? 'even' : '' }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("\n        ");___v1ew.push(can.view.txt(0,'tr',0,this,function(){var ___v1ew = []; list(type.list, function(prop, i){ ___v1ew.push("\n            <td>\n                ");___v1ew.push(can.view.txt(0,'td',0,this,function(){var ___v1ew = []; if(i === 0){ ___v1ew.push("<a href=\"");___v1ew.push(can.view.txt(1,'a','href',this,function(){ return  item.getRoute() }));___v1ew.push("\"",can.view.pending(),">"); } ;return ___v1ew.join('')}));
-___v1ew.push("\n                ");___v1ew.push(can.view.txt(0,'a',0,this,function(){ return  item.getDisplay(prop, "list") }));___v1ew.push("\n                ");___v1ew.push(can.view.txt(0,'a',0,this,function(){var ___v1ew = []; if(i === 0){ ___v1ew.push("</a>"); } ;return ___v1ew.join('')}));
-___v1ew.push("\n            </td>\n        "); }) ;return ___v1ew.join('')}));
-___v1ew.push("\n        ");___v1ew.push(can.view.txt(0,'tr',0,this,function(){var ___v1ew = []; if(canUpdate) { ___v1ew.push("<td><a href=\"");___v1ew.push(can.view.txt(1,'a','href',this,function(){ return  item.getRoute() }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("Edit</a></td>"); } ;return ___v1ew.join('')}));
-___v1ew.push("\n        ");___v1ew.push(can.view.txt(0,'tr',0,this,function(){var ___v1ew = []; if(canDestroy) { ___v1ew.push("<td><a href=\"#\" class=\"delete\">Delete</a></td>"); } ;return ___v1ew.join('')}));
-___v1ew.push("\n    </tr>\n    "); }) ;return ___v1ew.join('')}));
-___v1ew.push("\n</table>\n<div class=\"admin-list-paging\"></div>\n");; return ___v1ew.join('')}} }));
-can.view.preload('views_admin-paginate_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<div class=\"pagination\">\n  <ul>\n    <li class=\"");___v1ew.push(can.view.txt(1,'li','class',this,function(){ return  this.page ? "" : "disabled" }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("\n        <a href=\"");___v1ew.push(can.view.txt(1,'a','href',this,function(){ return  can.route.url({route: route, type: type, page: this.page - 1}) }));___v1ew.push("\" title=\"Previous Page\"",can.view.pending(),">");___v1ew.push("&laquo;</a>\n    </li>\n    ");___v1ew.push(can.view.txt(0,'ul',0,this,function(){var ___v1ew = []; if(this.pages){ ___v1ew.push(can.view.txt(0,'ul',0,this,function(){var ___v1ew = [];  for(var p = 0; p < pages; p++){ ___v1ew.push("\n        ");___v1ew.push(can.view.txt(0,'ul',0,this,function(){var ___v1ew = []; if(pages < 15 || (p > page - 4 && p < page + 4) || (p + 1) % 10 === 0 || p === 0 || p === pages -1){ ___v1ew.push("\n            <li class=\"");___v1ew.push(can.view.txt(1,'li','class',this,function(){ return  (this.page === p || !this.page && p === 0) ? "active" : "" }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("\n                <a href=\"");___v1ew.push(can.view.txt(1,'a','href',this,function(){ return  can.route.url({route: route, type: type, page: p}) }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push(can.view.txt(1,'a',0,this,function(){ return  p + 1 }));___v1ew.push("</a>\n            </li>\n        "); } ;return ___v1ew.join('')}));
-___v1ew.push("\n    "); }  ;return ___v1ew.join('')}));
- } ;return ___v1ew.join('')}));
-___v1ew.push("\n    <li class=\"");___v1ew.push(can.view.txt(1,'li','class',this,function(){ return  this.next ? "" : "disabled" }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("\n        <a href=\"");___v1ew.push(can.view.txt(1,'a','href',this,function(){ return  can.route.url({route: route, type: type, page: this.page + 1}) }));___v1ew.push("\" title=\"Next Page\"",can.view.pending(),">");___v1ew.push("&raquo;</a>\n    </li>\n  </ul>\n</div>\n");; return ___v1ew.join('')}} }));
-can.view.preload('views_admin-prop_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<span class=\"");___v1ew.push(can.view.txt(1,'span','class',this,function(){ return  cssClass }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push(can.view.txt(1,'span',0,this,function(){ return  this.val !== undefined ? val : "" }));___v1ew.push("</span>\n");; return ___v1ew.join('')}} }));
-can.view.preload('views_admin-radio_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<div class=\"");___v1ew.push(can.view.txt(1,'div','class',this,function(){ return  this.cssClass ? this.cssClass : ''}));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("\n"); var that = this ;;___v1ew.push("\n");___v1ew.push(can.view.txt(0,'div',0,this,function(){var ___v1ew = []; list(options, function(opt) { ___v1ew.push("\n    "); var val = opt.constructor && opt.constructor.id ? opt[opt.constructor.id] : opt.value;
-       var displayName = that.displayProperty ? can.getObject(displayProperty, opt) : can.capitalize(val);
-       var sel = val === that.selected ? "checked" : "" ;;___v1ew.push("\n    <label>\n        <input type=\"radio\" name=\"");___v1ew.push(can.view.txt(1,'input','name',this,function(){ return  name }));___v1ew.push("\" value=\"");___v1ew.push(can.view.txt(1,'input','value',this,function(){ return  val }));___v1ew.push("\" ");___v1ew.push(can.view.txt(1,'input',1,this,function(){ return  sel }));___v1ew.push("",can.view.pending(),">");___v1ew.push("\n        ");___v1ew.push(can.view.txt(1,'input',0,this,function(){ return  displayName }));___v1ew.push("\n    </label>\n"); }) ;return ___v1ew.join('')}));
-___v1ew.push("\n</div>\n");; return ___v1ew.join('')}} }));
-can.view.preload('views_admin-select_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<select class=\"");___v1ew.push(can.view.txt(1,'select','class',this,function(){ return  this.cssClass ? this.cssClass : ''}));___v1ew.push("\"\n    style=\"min-width: 220px; max-width: 600px;\"\n    id=\"admin-edit-");___v1ew.push(can.view.txt(1,'select','id',this,function(){ return  name }));___v1ew.push("\"\n    name=\"");___v1ew.push(can.view.txt(1,'select','name',this,function(){ return  name }));___v1ew.push("\"\n    ");___v1ew.push(can.view.txt(1,'select',1,this,function(){ return  this.multiple ? "multiple size='3'" :""}));___v1ew.push("",can.view.pending(),">");___v1ew.push("\n    "); var multiple = this.multiple, displayProperty = this.displayProperty, selected = this.selected ;;___v1ew.push("\n    ");___v1ew.push(can.view.txt(0,'select',0,this,function(){var ___v1ew = []; list(options, function(opt) { ___v1ew.push("\n        "); var val = opt.constructor && opt.constructor.id ? opt[opt.constructor.id] : opt.value;
-           var displayName = displayProperty ? can.getObject(displayProperty, opt) : can.capitalize(val);
-           var sel = (multiple ?
-                    can.inArray(val, selected) !== -1 :
-                    val === selected) ? "selected" : "" ;;___v1ew.push("\n        <option value=\"");___v1ew.push(can.view.txt(1,'option','value',this,function(){ return  val }));___v1ew.push("\" ");___v1ew.push(can.view.txt(1,'option',1,this,function(){ return  sel }));___v1ew.push("",can.view.pending(),">");___v1ew.push("\n            ");___v1ew.push(can.view.txt(1,'option',0,this,function(){ return  displayName }));___v1ew.push("\n        </option>\n    "); }) ;return ___v1ew.join('')}));
-___v1ew.push("\n</select>\n");; return ___v1ew.join('')}} }));
-can.view.preload('views_admin-textarea_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<textarea class=\"");___v1ew.push(can.view.txt(1,'textarea','class',this,function(){ return  this.cssClass ? this.cssClass : ''}));___v1ew.push("\"\n    id=\"admin-edit-");___v1ew.push(can.view.txt(1,'textarea','id',this,function(){ return  name }));___v1ew.push("\"\n    name=\"");___v1ew.push(can.view.txt(1,'textarea','name',this,function(){ return  name }));___v1ew.push("\"\n    rows=\"");___v1ew.push(can.view.txt(1,'textarea','rows',this,function(){ return  this.rows }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push(can.view.txt(0,'textarea',0,this,function(){ return  this.value }));___v1ew.push("</textarea>\n");; return ___v1ew.join('')}} }));
-can.view.preload('views_admin_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<div class=\"can-admin\">\n    <header>\n        <h2>Admin Area</h2>\n    </header>\n    <nav class=\"admin-breadcrumb\"></nav>\n    <nav class=\"admin-entities\">\n        <ul>\n            ");___v1ew.push(can.view.txt(0,'ul',0,this,function(){var ___v1ew = []; list(types, function(type){ ___v1ew.push("\n                <li>\n                    <a href=\"");___v1ew.push(can.view.txt(1,'a','href',this,function(){ return  type.getRoute() }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("\n                        <i class=\"icon-");___v1ew.push(can.view.txt(1,'i','class',this,function(){ return  type.getIcon() }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("</i>\n                        ");___v1ew.push(can.view.txt(1,'a',0,this,function(){ return  type.getNamePlural() }));___v1ew.push("\n                    </a>\n                </li>\n            "); }) ;return ___v1ew.join('')}));
-___v1ew.push("\n        </ul>\n        ");___v1ew.push(can.view.txt(0,'nav',0,this,function(){var ___v1ew = []; if(this.pages && this.pages.length) { ___v1ew.push("\n        <hr>\n        <ul>\n            ");___v1ew.push(can.view.txt(0,'ul',0,this,function(){var ___v1ew = []; list(pages, function(page){ ___v1ew.push("\n                <li>\n                    <a href=\"");___v1ew.push(can.view.txt(1,'a','href',this,function(){ return  page.getRoute() }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("\n                        <i class=\"icon-");___v1ew.push(can.view.txt(1,'i','class',this,function(){ return  page.getIcon() }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push("</i>\n                        ");___v1ew.push(can.view.txt(1,'a',0,this,function(){ return  page.getName() }));___v1ew.push("\n                    </a>\n                </li>\n            "); }) ;return ___v1ew.join('')}));
-___v1ew.push("\n        </ul>\n        "); } ;return ___v1ew.join('')}));
-___v1ew.push("\n    </nav>\n    <div class=\"admin-content\"></div>\n</div>\n");; return ___v1ew.join('')}} }));
-can.view.preload('views_breadcrumb_ejs',can.EJS(function(_CONTEXT,_VIEW) { with(_VIEW) { with (_CONTEXT) {var ___v1ew = [];___v1ew.push("<a href=\"");___v1ew.push(can.view.txt(1,'a','href',this,function(){ return  url }));___v1ew.push("\"",can.view.pending(),">");___v1ew.push(can.view.txt(1,'a',0,this,function(){ return  text }));___v1ew.push("</a>\n");; return ___v1ew.join('')}} })); });
+define('views',[],function() { can.view.preloadStringRenderer('views_admin_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<div class=\"can-admin\">\n    <header>\n        <h2>Admin Area</h2>\n    </header>\n    <nav class=\"admin-breadcrumb\"></nav>\n    <nav class=\"admin-entities\">\n        <ul>");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'ul',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"types"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"                <li>\n                    <a href=\"");___v1ew.push(
+can.view.txt(
+true,
+'a',
+'href',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"getRoute"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n                        <i class=\"icon-");___v1ew.push(
+can.view.txt(
+true,
+'i',
+'class',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"getIcon"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"</i>\n                        ");___v1ew.push(
+can.view.txt(
+1,
+'a',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"getNamePlural"})));___v1ew.push(
+"\n                    </a>\n                </li>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"        </ul>");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'nav',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"pages"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"        <hr>\n        <ul>");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'ul',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"pages"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"                <li>\n                    <a href=\"");___v1ew.push(
+can.view.txt(
+true,
+'a',
+'href',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"getRoute"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n                        <i class=\"icon-");___v1ew.push(
+can.view.txt(
+true,
+'i',
+'class',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"getIcon"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"</i>\n                        ");___v1ew.push(
+can.view.txt(
+1,
+'a',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"getName"})));___v1ew.push(
+"\n                    </a>\n                </li>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"        </ul>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"    </nav>\n    <div class=\"admin-content\"></div>\n</div>\n");; return ___v1ew.join('') }));
+can.view.preloadStringRenderer('views_breadcrumb_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<a href=\"");___v1ew.push(
+can.view.txt(
+true,
+'a',
+'href',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"url"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+can.view.txt(
+1,
+'a',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"text"})));___v1ew.push(
+"</a>\n");; return ___v1ew.join('') }));
+can.view.preloadStringRenderer('views_edit-inline_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<div class=\"admin-edit-inline\">\n    <div class=\"admin-edit-overlay\">\n        <h2>");___v1ew.push(
+can.view.txt(
+1,
+'h2',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"type.getName"})));___v1ew.push(
+"</h2>\n        <div class=\"admin-edit-form\"></div>\n    </div>\n</div>\n");; return ___v1ew.join('') }));
+can.view.preloadStringRenderer('views_edit_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<form class=\"form-horizontal\">");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'form',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"properties"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"    <div class=\"control-group\">\n        <label class=\"control-label\" for=\"admin-edit-");___v1ew.push(
+can.view.txt(
+true,
+'label',
+'for',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"key"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+can.view.txt(
+1,
+'label',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"label"})));___v1ew.push(
+"</label>\n        <div class=\"controls\">\n            ");___v1ew.push(
+can.view.txt(
+0,
+'div',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"widget"})));___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'div',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"canCreate"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"                <a ");___v1ew.push(
+can.view.txt(
+0,
+'a',
+1,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"with"},{get:"property"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+can.view.txt(
+1,
+'a',
+1,
+this,
+function(){ return can.proxy(function(__){can.data(can.$(__),'property', this.attr('.')); }, scope)}));
+return ___v1ew.join("");}}])));___v1ew.push(
+" href=\"#\" class=\"admin-edit-create\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"Create new</a>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"        </div>\n    </div>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"    ");___v1ew.push(
+can.view.txt(
+0,
+'form',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"canUpdate"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"\n    <div class=\"control-group\">\n        <div class=\"controls\">\n            <button type=\"submit\" class=\"btn btn-primary\">Save</button>");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'div',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"inline"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"            <button class=\"btn admin-edit-close\">Close</button>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"        </div>\n    </div>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"</form>\n");; return ___v1ew.join('') }));
+can.view.preloadStringRenderer('views_list_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<header>\n    <h2>");___v1ew.push(
+can.view.txt(
+1,
+'h2',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"type.getNamePlural"})));___v1ew.push(
+"</h2>");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'header',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"canCreate"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"        <a class=\"btn btn-primary\" href=\"");___v1ew.push(
+can.view.txt(
+true,
+'a',
+'href',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"type.getCreateRoute"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"<i class=\"icon-plus\"></i> Create new</a>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"    ");___v1ew.push(
+can.view.txt(
+0,
+'header',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"canSearch"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"\n        <form class=\"form-search\">\n            <input type=\"text\" class=\"admin-list-search search-query\" placeholder=\"Search\">\n            <button type=\"reset\" class=\"btn admin-list-reset\">Clear</button>\n        </form>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"</header>\n<table>\n    <tr>");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'tr',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"each"},{get:"type.list"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"            <th>");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'th',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"options.orderBy"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"                <a href=\"#\" class=\"sortable asc\" data-order-by=\"");___v1ew.push(
+can.view.txt(
+true,
+'a',
+'data-order-by',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"options.orderBy"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n                    ");___v1ew.push(
+can.view.txt(
+1,
+'a',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"getName"})));___v1ew.push(
+"\n                </a>\n                ");return ___v1ew.join("");}},
+{inverse:function(scope,options){
+var ___v1ew = [];___v1ew.push(
+"\n                    ");___v1ew.push(
+can.view.txt(
+1,
+'th',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"getName"})));___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"            </th>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"        ");___v1ew.push(
+can.view.txt(
+0,
+'tr',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"canUpdate"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"<th>Edit</th>");return ___v1ew.join("");}}])));___v1ew.push(
+"\n        ");___v1ew.push(
+can.view.txt(
+0,
+'tr',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"canDestroy"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"<th>Delete</th>");return ___v1ew.join("");}}])));___v1ew.push(
+"\n    </tr>\n    <tbody class=\"items\">");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'tbody',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"each"},{get:"items"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"        <tr ");___v1ew.push(
+can.view.txt(
+0,
+'tr',
+1,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"with"},{get:"item"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+can.view.txt(
+1,
+'tr',
+1,
+this,
+function(){ return can.proxy(function(__){can.data(can.$(__),'item', this.attr('.')); }, scope)}));
+return ___v1ew.join("");}}])));___v1ew.push(
+" class=\"");___v1ew.push(
+can.view.txt(
+true,
+'tr',
+'class',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"cssClass"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n            <td>\n                <a href=\"");___v1ew.push(
+can.view.txt(
+true,
+'a',
+'href',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"route"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+can.view.txt(
+1,
+'a',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"label"})));___v1ew.push(
+"</a>\n            </td>");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'tr',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"properties"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"            <td>\n                ");___v1ew.push(
+can.view.txt(
+0,
+'td',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"."})));___v1ew.push(
+"\n            </td>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"            ");___v1ew.push(
+can.view.txt(
+0,
+'tr',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"canUpdate"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"<td><a href=\"");___v1ew.push(
+can.view.txt(
+true,
+'a',
+'href',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"route"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"Edit</a></td>");return ___v1ew.join("");}}])));___v1ew.push(
+"\n            ");___v1ew.push(
+can.view.txt(
+0,
+'tr',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"canDestroy"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"<td><a href=\"#\" class=\"delete\">Delete</a></td>");return ___v1ew.join("");}}])));___v1ew.push(
+"\n        </tr>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"    </tbody>\n</table>\n<div class=\"admin-list-paging\"></div>\n");; return ___v1ew.join('') }));
+can.view.preloadStringRenderer('views_paginate_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<div class=\"pagination\">\n  <ul>\n    <li class=\"");___v1ew.push(
+can.view.txt(
+true,
+'li',
+'class',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"unless"},{get:"prev"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"disabled");return ___v1ew.join("");}}])));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'li',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"prev"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"            <a href=\"");___v1ew.push(
+can.view.txt(
+true,
+'a',
+'href',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"prev"})));___v1ew.push(
+"\" title=\"Previous Page\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"&laquo;</a>\n        ");return ___v1ew.join("");}},
+{inverse:function(scope,options){
+var ___v1ew = [];___v1ew.push(
+"<a>&laquo;</a>");return ___v1ew.join("");}}])));___v1ew.push(
+"\n    </li>");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'ul',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"pages"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"    <li class=\"");___v1ew.push(
+can.view.txt(
+true,
+'li',
+'class',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"active"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"active");return ___v1ew.join("");}}])));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n        <a href=\"");___v1ew.push(
+can.view.txt(
+true,
+'a',
+'href',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"url"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+can.view.txt(
+1,
+'a',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"page"})));___v1ew.push(
+"</a>\n    </li>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"    <li class=\"");___v1ew.push(
+can.view.txt(
+true,
+'li',
+'class',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"unless"},{get:"next"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"disabled");return ___v1ew.join("");}}])));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'li',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"next"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"            <a href=\"");___v1ew.push(
+can.view.txt(
+true,
+'a',
+'href',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"next"})));___v1ew.push(
+"\" title=\"Next Page\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"&raquo;</a>\n        ");return ___v1ew.join("");}},
+{inverse:function(scope,options){
+var ___v1ew = [];___v1ew.push(
+"<a>&raquo;</a>");return ___v1ew.join("");}}])));___v1ew.push(
+"\n    </li>\n  </ul>\n</div>\n");; return ___v1ew.join('') }));
+can.view.preloadStringRenderer('views_prop-checkbox_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<input type=\"checkbox\" value=\"");___v1ew.push(
+can.view.txt(
+true,
+'input',
+'value',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"value"})));___v1ew.push(
+"\" name=\"");___v1ew.push(
+can.view.txt(
+true,
+'input',
+'name',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"name"})));___v1ew.push(
+"\" id=\"admin-edit-");___v1ew.push(
+can.view.txt(
+true,
+'input',
+'id',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"name"})));___v1ew.push(
+"\"");___v1ew.push(
+can.view.txt(
+0,
+'input',
+1,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"checked"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+" checked");return ___v1ew.join("");}}])));___v1ew.push(
+"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n");; return ___v1ew.join('') }));
+can.view.preloadStringRenderer('views_prop-display_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<span class=\"");___v1ew.push(
+can.view.txt(
+true,
+'span',
+'class',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"cssClass"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+can.view.txt(
+1,
+'span',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"val"})));___v1ew.push(
+"</span>\n");; return ___v1ew.join('') }));
+can.view.preloadStringRenderer('views_prop-input_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<input type=\"text\" name=\"");___v1ew.push(
+can.view.txt(
+true,
+'input',
+'name',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"name"})));___v1ew.push(
+"\" id=\"admin-edit-");___v1ew.push(
+can.view.txt(
+true,
+'input',
+'id',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"name"})));___v1ew.push(
+"\" value=\"");___v1ew.push(
+can.view.txt(
+true,
+'input',
+'value',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"value"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n");; return ___v1ew.join('') }));
+can.view.preloadStringRenderer('views_prop-list-checkbox_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<div class=\"row-fluid admin-list-checkbox ");___v1ew.push(
+can.view.txt(
+true,
+'div',
+'class',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"cssClass"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'div',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"each"},{get:"options"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"    <label>\n        <input type=\"checkbox\" name=\"");___v1ew.push(
+can.view.txt(
+true,
+'input',
+'name',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"name"})));___v1ew.push(
+"\" value=\"");___v1ew.push(
+can.view.txt(
+true,
+'input',
+'value',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"value"})));___v1ew.push(
+"\"");___v1ew.push(
+can.view.txt(
+0,
+'input',
+1,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"selected"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+" checked");return ___v1ew.join("");}}])));___v1ew.push(
+"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n        ");___v1ew.push(
+can.view.txt(
+1,
+'input',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"displayName"})));___v1ew.push(
+"\n    </label>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"</div>\n");; return ___v1ew.join('') }));
+can.view.preloadStringRenderer('views_prop-radio_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<div class=\"");___v1ew.push(
+can.view.txt(
+true,
+'div',
+'class',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"cssClass"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'div',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"each"},{get:"options"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"    <label>\n        <input type=\"radio\" name=\"");___v1ew.push(
+can.view.txt(
+true,
+'input',
+'name',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"name"})));___v1ew.push(
+"\" value=\"");___v1ew.push(
+can.view.txt(
+true,
+'input',
+'value',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"value"})));___v1ew.push(
+"\"");___v1ew.push(
+can.view.txt(
+0,
+'input',
+1,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"selected"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+" checked");return ___v1ew.join("");}}])));___v1ew.push(
+"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n        ");___v1ew.push(
+can.view.txt(
+1,
+'input',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"displayName"})));___v1ew.push(
+"\n    </label>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"</div>\n");; return ___v1ew.join('') }));
+can.view.preloadStringRenderer('views_prop-select_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<select class=\"");___v1ew.push(
+can.view.txt(
+true,
+'select',
+'class',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"cssClass"})));___v1ew.push(
+"\"\n    ");___v1ew.push(
+can.view.txt(2,'select','style',this,function(){var ___v1ew = [];___v1ew.push(
+"style=\"");___v1ew.push(
+"min-width: 220px; max-width: 600px;\"");return ___v1ew.join('')}));
+___v1ew.push(
+"\n    id=\"admin-edit-");___v1ew.push(
+can.view.txt(
+true,
+'select',
+'id',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"name"})));___v1ew.push(
+"\"\n    name=\"");___v1ew.push(
+can.view.txt(
+true,
+'select',
+'name',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"name"})));___v1ew.push(
+"\"\n    ");___v1ew.push(
+can.view.txt(
+0,
+'select',
+1,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"multiple"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"multiple size='3'");return ___v1ew.join("");}}])));___v1ew.push(
+"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n");___v1ew.push(
+can.view.txt(
+0,
+'select',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"each"},{get:"options"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"        <option value=\"");___v1ew.push(
+can.view.txt(
+true,
+'option',
+'value',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"value"})));___v1ew.push(
+"\"");___v1ew.push(
+can.view.txt(
+0,
+'option',
+1,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"selected"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+" selected");return ___v1ew.join("");}}])));___v1ew.push(
+"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+"\n            ");___v1ew.push(
+can.view.txt(
+1,
+'option',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"displayName"})));___v1ew.push(
+"\n        </option>");___v1ew.push(
+"\n");return ___v1ew.join("");}}])));___v1ew.push(
+"</select>\n");; return ___v1ew.join('') }));
+can.view.preloadStringRenderer('views_prop-textarea_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
+"<textarea class=\"");___v1ew.push(
+can.view.txt(
+true,
+'textarea',
+'class',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"cssClass"})));___v1ew.push(
+"\" id=\"admin-edit-");___v1ew.push(
+can.view.txt(
+true,
+'textarea',
+'id',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"name"})));___v1ew.push(
+"\" name=\"");___v1ew.push(
+can.view.txt(
+true,
+'textarea',
+'name',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"name"})));___v1ew.push(
+"\" rows=\"");___v1ew.push(
+can.view.txt(
+true,
+'textarea',
+'rows',
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"rows"})));___v1ew.push(
+"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
+can.view.txt(
+0,
+'textarea',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+null,{get:"value"})));___v1ew.push(
+"</textarea>\n");; return ___v1ew.join('') })); });
 define('controls/list',[
     "../views"
 ], function(ejsList, ejsPaginate) {
 
     var List = can.Control.extend({
         init: function(el, options) {
-            this.items = new can.Observe.List()
-            el.html(can.view("../views/admin-list.ejs", {
-                type: options.type,
-                items: this.items
-            }))
+            this.items = new can.List([])
+            this.renderPage()
 
             if(options.search){
                 el.find(".admin-list-search").val(options.search)
@@ -1007,15 +1939,47 @@ define('controls/list',[
             this.loadSearch(route.search)
         },
 
+        renderPage: function() {
+            this.element.html(can.view("../views/list.mustache", {
+                type: this.options.type,
+                canCreate: this.options.type.canCreate(),
+                canSearch: this.options.type.canSearch(),
+                canUpdate: this.options.type.canUpdate(),
+                canDestroy: this.options.type.canDestroy(),
+                items: this.items
+            }))
+        },
+
         loadPage: function(page){
             var that = this
             page = can.isNumeric(page) ? page : undefined
             this.options.type.getAll(page)
             .done(function(items){
-                that.items.replace(items)
+                that.displayItems(items)
                 that.initPaging(page)
                 that.element.removeClass("admin-list-searchresults")
             })
+        },
+
+        displayItems: function(items){
+            var properties = this.options.type.list
+            var displayItems = []
+            items.forEach(function(item, i){
+                var displayItem = {
+                    route: item.getRoute(),
+                    label: item.getDisplay(properties[0], "list"),
+                    properties: [],
+                    cssClass: i%2 === 0 ? "even" : "odd",
+                    item: item
+                }
+                properties.forEach(function(prop, i){
+                    if(i > 0) {
+                        displayItem.properties.push(item.getDisplay(prop, "list"))
+                    }
+                })
+                displayItems.push(displayItem)
+            })
+            this.items.replace(displayItems)
         },
 
         initPaging: function(page){
@@ -1035,18 +1999,36 @@ define('controls/list',[
                 if(count <= opts.max || !that.element){
                     return
                 }
-                
-                page = page || 0
-                that.element.find(".admin-list-paging").html(can.view("../views/admin-paginate.ejs", can.extend({
-                    route: that.options.routes.listPage,
-                    type: that.options.type.name,
-                    count: count,
-                    pages: Math.ceil(count/opts.max),
-                    next: count ?
-                        page < Math.floor(count/opts.max) :
-                        !lastPage,
-                    page: parseInt(page)
-                }, opts)))
+
+                var route = that.options.routes.listPage
+                var type = that.options.type.name
+                page = parseInt(page) || 0
+                var numPages = Math.floor(count/opts.max)
+                var hasNext = count ?
+                        page < numPages :
+                        !lastPage
+
+                var pages = []
+                for(var p = 0; p <= numPages; p++){
+                    if(numPages < 15 ||                     // display all pages if there are less than 15 or ...
+                        (p > page - 4 && p < page + 4) ||   // display 3 pages before and after current page
+                        (p + 1) % 10 === 0 ||               //   and every tenth page
+                        p === 0 ||                          //   and the first
+                        p === numPages -1                   //   and the last
+                    ){
+                        pages.push({
+                            page: p+1,
+                            active: page === p || !page && p === 0,
+                            url: can.route.url({route: route, type: type, page: p})
+                        })
+                    }
+                }
+
+                that.element.find(".admin-list-paging").html(can.view("../views/paginate.mustache", {
+                    next: hasNext ? can.route.url({route: route, type: type, page: page + 1}) : undefined,
+                    prev: page > 0 ? can.route.url({route: route, type: type, page: page - 1}) : undefined,
+                    pages: pages
+                }))
             })
         },
 
@@ -1056,7 +2038,7 @@ define('controls/list',[
             this.options.type.getSearch(q).done(function(res){
                 // ignore results if user was still typing while fetching results
                 if(q === that.lastSearchTerm || !that.lastSearchTerm){
-                    that.items.replace(res)
+                    that.displayItems(res)
                 }
             })
         },
@@ -1070,7 +2052,8 @@ define('controls/list',[
         ".delete click": function(el, ev){
             ev.preventDefault()
             var row = el.closest("tr")
-            var item = row.data("item")
+            var itemCompute = row.data("item")
+            var item = itemCompute()
             if(window.confirm("Delete '" + item.getName() + "'?")){
                 item.destroy()
                 .done(function(){
@@ -1155,12 +2138,32 @@ define('controls/edit',[
                     el.find(".admin-edit-form") :
                     el
 
-                target.html(can.view("../views/admin-edit.ejs", {
+                target.html(can.view("../views/edit.mustache", {
                     type: options.type,
+                    canUpdate: options.type.canUpdate(),
                     inline: options.inline,
-                    item: item
+                    item: item,
+                    properties: that.getEditProperties()
                 }))
             })
+        },
+
+        getEditProperties: function(){
+            var properties = []
+            var item = this.item
+            this.options.type.edit.forEach(function(prop){
+                if(!item.instance.isNew() || prop.isEnabled(item.instance.isNew() ? "create" : "update")) {
+                    var propType = prop.getType()
+                    properties.push({
+                        key: prop.getKey(),
+                        label: prop.getName(),
+                        widget: item.getWidget(prop),
+                        canCreate: propType ? propType.canCreate() : false,
+                        property: prop
+                    })
+                }
+            }, this)
+            return properties
         },
 
         close: function(item){
@@ -1194,7 +2197,7 @@ define('controls/edit',[
             var type = property.getType()
             var that = this
 
-            this.element.after(can.view("../views/admin-edit-inline.ejs", {
+            this.element.after(can.view("../views/edit-inline.mustache", {
                 type: type
             }))
 
@@ -1291,10 +2294,11 @@ define('controls/main',[
 
         init: function(){
             this.initHtml()
+            can.route.ready()
         },
 
         initHtml: function(){
-            this.element.html(can.view("../views/admin.ejs", {
+            this.element.html(can.view("../views/admin.mustache", {
                 types: this.options.types,
                 pages: this.options.pages
             }))
@@ -1368,7 +2372,7 @@ define('controls/main',[
             }
         },
         appendToBreadcrumb: function(text, url){
-            this.element.find(".admin-breadcrumb").append(can.view("../views/breadcrumb.ejs", {
+            this.element.find(".admin-breadcrumb").append(can.view("../views/breadcrumb.mustache", {
                 url: url,
                 text: text
             }))

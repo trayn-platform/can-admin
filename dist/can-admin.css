@@ -136,14 +136,19 @@
   text-align: left;
   border-left: 0;
 }
-.can-admin .admin-content > table tr:hover td {
-  background: #f2f2f2;
-}
 .can-admin .admin-content > table tr.even td {
   background: #f6f6f6;
 }
+.can-admin .admin-content > table tr:hover td {
+  background: #f2f2f2;
+}
 .can-admin a.admin-edit-create {
   margin-left: 5px;
+}
+.can-admin .admin-list-checkbox {
+  -moz-column-count: 3;
+  -webkit-column-count: 3;
+  columns: 3;
 }
 .can-admin .admin-edit-inline {
   position: fixed;
