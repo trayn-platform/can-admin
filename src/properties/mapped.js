@@ -102,7 +102,7 @@ define([
                 var modelName = item.constructor.attributes[this.getKey()].replace(/\.models?$/,"")
                 return can.getObject(modelName, window)
             } else {
-                item.constructor.define[this.getKey()].Type
+                return item.constructor.define[this.getKey()].Type
             }
             
         },
