@@ -742,7 +742,10 @@ define('properties/mapped',[
                 var modelName = item.constructor.attributes[this.getKey()].replace(/\.models?$/,"")
                 return can.getObject(modelName, window)
             } else {
-                return item.constructor.define[this.getKey()].Type
+                var define = item.define[this.getKey()]
+                var Type = define.Type || (define.type ? define.type().constructor : undefined)
+                // return single Model if type is a Model.List
+                return Type.Map || Type
             }
             
         },
