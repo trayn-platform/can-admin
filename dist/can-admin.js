@@ -585,11 +585,15 @@ define('properties/select',[
         },
         getWidget: function(item){
             this.widgetCallback("select[name='"+this.getKey()+"']")
+            var selected = this.getSelected(item)
+            var options = can.map(this.options.values, function(opt){
+                opt.selected = opt.value === selected
+                return opt
+            })
             return can.view.render("../views/prop-select.mustache", {
                 name: this.getKey(),
                 multiple: this.options.multiple,
-                options: this.options.values,
-                selected: this.getSelected(item),
+                options: options,
                 displayProperty: this.options.displayProperty
             })
         }

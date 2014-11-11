@@ -1,7 +1,11 @@
+__0.2.2__ ( 2014-09-16 )
+
+- fix error select widget #2
+- upgrade to CanJS 2.1.3 
+
 __0.2.1__ ( 2014-09-16 )
 
 - fix error with model relations #1
-- upgrade to CanJS 2.1.3 
 
 __0.2.0__ ( 2014-07-25 )
 
