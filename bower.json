@@ -21,6 +21,6 @@
   "devDependencies": {
     "qunit": "~1.14.0",
     "jquery": "~2.1.1",
-    "canjs": "~2.1.2"
+    "canjs": "~2.1.3"
   }
 }
