@@ -1,3 +1,8 @@
+__0.2.3__ ( 2015-08-03 )
+
+- fix entity instantiation for search results #3
+- upgrade third party JS libs
+
 __0.2.2__ ( 2014-09-16 )
 
 - fix error select widget #2
