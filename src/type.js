@@ -196,6 +196,9 @@ define([
             var that = this
             return deferred.then(function(instances){
                     return can.map(instances, function(instance){
+                        if(!(instance instanceof that.model)) {
+                            instance = new that.model(instance)
+                        }
                         return new Item({
                             type: that,
                             instance: instance
