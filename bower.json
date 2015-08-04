@@ -14,13 +14,13 @@
     "**/*.txt"
   ],
   "dependencies": {
-    "jquery": "~2.1.1",
-    "canjs": "~2.1.3",
-    "almond": "~0.2.9"
+    "jquery": "~2.1.4",
+    "canjs": "~2.2.7",
+    "almond": "~0.3.1"
   },
   "devDependencies": {
-    "qunit": "~1.14.0",
-    "jquery": "~2.1.1",
-    "canjs": "~2.1.3"
+    "qunit": "~1.18.0",
+    "jquery": "~2.1.4",
+    "canjs": "~2.2.7"
   }
 }
