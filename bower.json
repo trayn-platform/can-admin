@@ -1,6 +1,5 @@
 {
   "name": "can-admin",
-  "version": "0.2.3",
   "homepage": "http://www.github.com/insposo/can-admin",
   "authors": [
     "Rupert Angermeier"
@@ -14,9 +13,7 @@
     "**/*.txt"
   ],
   "dependencies": {
-    "jquery": "~2.1.4",
-    "canjs": "~2.2.7",
-    "almond": "~0.3.1"
+    "canjs": "~2.2.7"
   },
   "devDependencies": {
     "qunit": "~1.18.0",

@@ -1,3 +1,7 @@
+__0.2.4__ ( 2015-08-05 )
+
+- cleanup bower.json
+
 __0.2.3__ ( 2015-08-03 )
 
 - fix entity instantiation for search results #3
