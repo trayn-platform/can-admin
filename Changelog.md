@@ -1,3 +1,7 @@
+__0.2.6__ ( 2015-09-22 )
+
+- pre-select newly added options for mapped properties #4
+
 __0.2.5__ ( 2015-08-05 )
 
 - fix build

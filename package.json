@@ -1,6 +1,6 @@
 {
   "name": "can-admin",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "JS admin interface to REST services, build with canJS",
   "homepage": "http://www.github.com/insposo/can-admin",
   "repository": {
