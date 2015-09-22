@@ -77,7 +77,9 @@ define([
         },
         addWidgetOption: function(item, option, selectedIds){
             this.viewParams.selected = selectedIds || this.viewParams.selected
-            this.viewParams.options.push(this.prepareOptionForDisplay(option, item))
+            var displayOptions = this.prepareOptionForDisplay(option, item)
+            displayOptions.selected = true
+            this.viewParams.options.push(displayOptions)
             can.$("."+this._asyncReplaceClass(item)).trigger("change")
         },
         prepareOptionForDisplay: function(opt, item){
