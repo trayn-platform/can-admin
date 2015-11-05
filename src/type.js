@@ -12,6 +12,10 @@ define([
  *                        for display (optional)
  * @param {string} icon Name of CSS class for icon, without "icon-" prefix
  *                        (optional, defaults to "cog")
+ * @param {bool, func} showInMenu controls if type is listed in menu. Useful
+                          to include types which are only used as property of
+                          another type but shouldn't show up in menu. (optional,
+                          default true)
  * @param {can.Model} model the can.Model connecting the type to a REST service
  * @param {object} properties Dictionary of properties of the model which are
  *                        used in the Admin UI
@@ -66,7 +70,8 @@ define([
             sortParameter: "orderBy",
             sortType: "orderType",
             sortAscending: "ASC",
-            sortDescending: "DESC"
+            sortDescending: "DESC",
+            showInMenu: true
         }
     },{
         init: function(opts){
@@ -128,6 +133,11 @@ define([
         },
         getNamePlural: function(){
             return this.displayNamePlural || this.getName() + "s"
+        },
+        isShowInMenu: function(){
+            return typeof this.showInMenu === "function" ?
+                this.showInMenu() :
+                !!this.showInMenu
         },
 
         getIcon: function(){

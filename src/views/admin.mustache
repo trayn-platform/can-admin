@@ -6,12 +6,14 @@
     <nav class="admin-entities">
         <ul>
             {{#types}}
+                {{#if isShowInMenu }}
                 <li>
                     <a href="{{getRoute}}">
                         <i class="icon-{{getIcon}}"></i>
                         {{getNamePlural}}
                     </a>
                 </li>
+                {{/if}}
             {{/types}}
         </ul>
         {{#if pages}}
