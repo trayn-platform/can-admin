@@ -1,3 +1,7 @@
+__0.2.7__ ( 2015-11-05 )
+
+- configure which types are visible in menu: new option "showInMenu" for types
+
 __0.2.6__ ( 2015-09-22 )
 
 - pre-select newly added options for mapped properties #4

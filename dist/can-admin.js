@@ -975,7 +975,18 @@ can.Mustache.txt(
 "#",{get:"types"},[
 
 {fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"                <li>\n                    <a href=\"");___v1ew.push(
+"                ");___v1ew.push(
+can.view.txt(
+0,
+'ul',
+0,
+this,
+can.Mustache.txt(
+{scope:scope,options:options},
+"#",{get:"if"},{get:"isShowInMenu"},[
+
+{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
+"\n                <li>\n                    <a href=\"");___v1ew.push(
 can.view.txt(
 true,
 'a',
@@ -1006,7 +1017,8 @@ can.Mustache.txt(
 null,{get:"getNamePlural"})));___v1ew.push(
 "\n                    </a>\n                </li>");___v1ew.push(
 "\n");return ___v1ew.join("");}}])));___v1ew.push(
-"        </ul>");___v1ew.push(
+"            ");return ___v1ew.join("");}}])));___v1ew.push(
+"\n        </ul>");___v1ew.push(
 "\n");___v1ew.push(
 can.view.txt(
 0,
@@ -2531,6 +2543,10 @@ define('type',[
  *                        for display (optional)
  * @param {string} icon Name of CSS class for icon, without "icon-" prefix
  *                        (optional, defaults to "cog")
+ * @param {bool, func} showInMenu controls if type is listed in menu. Useful
+                          to include types which are only used as property of
+                          another type but shouldn't show up in menu. (optional,
+                          default true)
  * @param {can.Model} model the can.Model connecting the type to a REST service
  * @param {object} properties Dictionary of properties of the model which are
  *                        used in the Admin UI
@@ -2585,7 +2601,8 @@ define('type',[
             sortParameter: "orderBy",
             sortType: "orderType",
             sortAscending: "ASC",
-            sortDescending: "DESC"
+            sortDescending: "DESC",
+            showInMenu: true
         }
     },{
         init: function(opts){
@@ -2647,6 +2664,11 @@ define('type',[
         },
         getNamePlural: function(){
             return this.displayNamePlural || this.getName() + "s"
+        },
+        isShowInMenu: function(){
+            return typeof this.showInMenu === "function" ?
+                this.showInMenu() :
+                !!this.showInMenu
         },
 
         getIcon: function(){
