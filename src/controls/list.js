@@ -1,6 +1,6 @@
 define([
     "../views"
-], function(ejsList, ejsPaginate) {
+], function() {
 
     var List = can.Control.extend({
         init: function(el, options) {
@@ -29,7 +29,7 @@ define([
         },
 
         renderPage: function() {
-            this.element.html(can.view("../views/list.mustache", {
+            this.element.html(can.view("../views/list.stache", {
                 type: this.options.type,
                 canCreate: this.options.type.canCreate(),
                 canSearch: this.options.type.canSearch(),
@@ -113,7 +113,7 @@ define([
                     }
                 }
 
-                that.element.find(".admin-list-paging").html(can.view("../views/paginate.mustache", {
+                that.element.find(".admin-list-paging").html(can.view("../views/paginate.stache", {
                     next: hasNext ? can.route.url({route: route, type: type, page: page + 1}) : undefined,
                     prev: page > 0 ? can.route.url({route: route, type: type, page: page - 1}) : undefined,
                     pages: pages

@@ -28,13 +28,12 @@
     </tr>
     <tbody class="items">
         {{#each items}}
-        <tr {{#with item}}{{data "item"}}{{/with}} class="{{cssClass}}">
+        <tr {{data "item" item}} class="{{cssClass}}">
             <td>
                 <a href="{{route}}">{{label}}</a>
             </td>
             {{#properties}}
-            <td>
-                {{{.}}}
+            <td {{appendDocFrag this}}>
             </td>
             {{/properties}}
             {{#if canUpdate}}<td><a href="{{route}}">Edit</a></td>{{/if}}

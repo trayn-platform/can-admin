@@ -13,7 +13,7 @@ define([
     var TextLong = TextSimple.extend({
         getWidget: function(item){
             this.widgetCallback("textarea[name='"+this.getKey()+"']")
-            return can.view.render("../views/prop-textarea.mustache", {
+            return can.view.render("../views/prop-textarea.stache", {
                 name: this.getKey(),
                 value: this.getDisplay(item),
                 rows: this.options.rows || 3

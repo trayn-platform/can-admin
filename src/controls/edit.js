@@ -15,7 +15,7 @@ define([
                     el.find(".admin-edit-form") :
                     el
 
-                target.html(can.view("../views/edit.mustache", {
+                target.html(can.view("../views/edit.stache", {
                     type: options.type,
                     canUpdate: options.type.canUpdate(),
                     inline: options.inline,
@@ -74,7 +74,7 @@ define([
             var type = property.getType()
             var that = this
 
-            this.element.after(can.view("../views/edit-inline.mustache", {
+            this.element.after(can.view("../views/edit-inline.stache", {
                 type: type
             }))
 

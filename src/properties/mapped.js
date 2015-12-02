@@ -36,7 +36,7 @@ define([
 
         getDisplay: function(item, context){
             var val = this._asyncRenderValue(this.getProperty(item), item, context)
-            return can.view.render("../views/prop-display.mustache", {
+            return can.view.render("../views/prop-display.stache", {
                 cssClass: this._asyncReplaceClass(item),
                 val: val
             })
@@ -50,9 +50,9 @@ define([
         },
         getWidgetTemplate: function(){
             if(this.options.widgetType === "radio") {
-                return "../views/prop-radio.mustache"
+                return "../views/prop-radio.stache"
             }
-            return "../views/prop-select.mustache"
+            return "../views/prop-select.stache"
         },
         getWidget: function(item){
             this.viewParams = {

@@ -36,7 +36,7 @@ define(function() {
         getWidget: function(property){
             var mode = this.instance.isNew() ? "create" : "update"
             return !this.type.canUpdate() || !property.isEnabled(mode) ?
-                "<span class='ro-property'>"+this.getDisplay(property, "edit")+"</span>" :
+                can.$("<span class='ro-property'></span>").append(this.getDisplay(property, "edit")) :
                 property.getWidget(this.instance)
         },
 

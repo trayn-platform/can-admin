@@ -1,15 +1,15 @@
 <form class="form-horizontal">
-    {{#properties}}
+    {{#each properties}}
     <div class="control-group">
         <label class="control-label" for="admin-edit-{{key}}">{{label}}</label>
         <div class="controls">
-            {{{widget}}}
+            <div {{appendDocFrag widget}}></div>
             {{#if canCreate}}
-                <a {{#with property}}{{data "property"}}{{/with}} href="#" class="admin-edit-create">Create new</a>
+                <a {{data "property" property}} href="#" class="admin-edit-create">Create new</a>
             {{/if}}
         </div>
     </div>
-    {{/properties}}
+    {{/each}}
     {{#if canUpdate}}
     <div class="control-group">
         <div class="controls">

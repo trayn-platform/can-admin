@@ -36,7 +36,7 @@ define([
                 opt.selected = opt.value === selected
                 return opt
             })
-            return can.view.render("../views/prop-select.mustache", {
+            return can.view.render("../views/prop-select.stache", {
                 name: this.getKey(),
                 multiple: this.options.multiple,
                 options: options,

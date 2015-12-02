@@ -1,6 +1,7 @@
 define([
     "./list",
     "./edit",
+    "./helpers",
     "../views"
 ], function(CtrlList, CtrlEdit) {
 
@@ -70,7 +71,7 @@ define([
         },
 
         initHtml: function(){
-            this.element.html(can.view("../views/admin.mustache", {
+            this.element.html(can.view("../views/admin.stache", {
                 types: this.options.types,
                 pages: this.options.pages
             }))
@@ -144,7 +145,7 @@ define([
             }
         },
         appendToBreadcrumb: function(text, url){
-            this.element.find(".admin-breadcrumb").append(can.view("../views/breadcrumb.mustache", {
+            this.element.find(".admin-breadcrumb").append(can.view("../views/breadcrumb.stache", {
                 url: url,
                 text: text
             }))
