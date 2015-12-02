@@ -523,7 +523,7 @@ define('properties/text-simple',[
     var TextSimple = Base.extend({
         getWidget: function(item){
             this.widgetCallback("input[name='"+this.getKey()+"']")
-            return can.view.render("../views/prop-input.mustache", {
+            return can.view.render("../views/prop-input.stache", {
                 name: this.getKey(),
                 value: this.getDisplay(item)
             })
@@ -549,7 +549,7 @@ define('properties/text-long',[
     var TextLong = TextSimple.extend({
         getWidget: function(item){
             this.widgetCallback("textarea[name='"+this.getKey()+"']")
-            return can.view.render("../views/prop-textarea.mustache", {
+            return can.view.render("../views/prop-textarea.stache", {
                 name: this.getKey(),
                 value: this.getDisplay(item),
                 rows: this.options.rows || 3
@@ -599,7 +599,7 @@ define('properties/select',[
                 opt.selected = opt.value === selected
                 return opt
             })
-            return can.view.render("../views/prop-select.mustache", {
+            return can.view.render("../views/prop-select.stache", {
                 name: this.getKey(),
                 multiple: this.options.multiple,
                 options: options,
@@ -689,7 +689,7 @@ define('properties/mapped',[
 
         getDisplay: function(item, context){
             var val = this._asyncRenderValue(this.getProperty(item), item, context)
-            return can.view.render("../views/prop-display.mustache", {
+            return can.view.render("../views/prop-display.stache", {
                 cssClass: this._asyncReplaceClass(item),
                 val: val
             })
@@ -703,9 +703,9 @@ define('properties/mapped',[
         },
         getWidgetTemplate: function(){
             if(this.options.widgetType === "radio") {
-                return "../views/prop-radio.mustache"
+                return "../views/prop-radio.stache"
             }
-            return "../views/prop-select.mustache"
+            return "../views/prop-select.stache"
         },
         getWidget: function(item){
             this.viewParams = {
@@ -841,9 +841,9 @@ define('properties/list-mapped',[
 
         getWidgetTemplate: function(){
             if(this.options.widgetType === "checkbox") {
-                return "../views/prop-list-checkbox.mustache"
+                return "../views/prop-list-checkbox.stache"
             }
-            return "../views/prop-select.mustache"
+            return "../views/prop-select.stache"
         },
         
         getSelectedId: function(item){
@@ -921,7 +921,7 @@ define('properties/bool',[
         },
         getWidget: function(item){
             this.widgetCallback("input[name='"+this.getKey()+"']")
-            return can.view.render("../views/prop-checkbox.mustache", {
+            return can.view.render("../views/prop-checkbox.stache", {
                 name: this.getKey(),
                 value: this.options.value,
                 checked: this.isOn(item)
@@ -962,986 +962,26 @@ define('properties',[
     return Properties
 })
 ;
-define('views',[],function() { can.view.preloadStringRenderer('views_admin_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<div class=\"can-admin\">\n    <header>\n        <h2>Admin Area</h2>\n    </header>\n    <nav class=\"admin-breadcrumb\"></nav>\n    <nav class=\"admin-entities\">\n        <ul>");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'ul',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"types"},[
+(function(window) {
+ can.view.preloadStringRenderer('views_admin_stache',can.stache("<div class=\"can-admin\">\n    <header>\n        <h2>Admin Area</h2>\n    </header>\n    <nav class=\"admin-breadcrumb\"></nav>\n    <nav class=\"admin-entities\">\n        <ul>\n            {{#types}}\n                {{#if isShowInMenu }}\n                <li>\n                    <a href=\"{{getRoute}}\">\n                        <i class=\"icon-{{getIcon}}\"></i>\n                        {{getNamePlural}}\n                    </a>\n                </li>\n                {{/if}}\n            {{/types}}\n        </ul>\n        {{#if pages}}\n        <hr>\n        <ul>\n            {{#pages}}\n                <li>\n                    <a href=\"{{getRoute}}\">\n                        <i class=\"icon-{{getIcon}}\"></i>\n                        {{getName}}\n                    </a>\n                </li>\n            {{/pages}}\n        </ul>\n        {{/if}}\n    </nav>\n    <div class=\"admin-content\"></div>\n</div>\n"));
+can.view.preloadStringRenderer('views_breadcrumb_stache',can.stache("<a href=\"{{url}}\">{{text}}</a>\n"));
+can.view.preloadStringRenderer('views_edit-inline_stache',can.stache("<div class=\"admin-edit-inline\">\n    <div class=\"admin-edit-overlay\">\n        <h2>{{type.getName}}</h2>\n        <div class=\"admin-edit-form\"></div>\n    </div>\n</div>\n"));
+can.view.preloadStringRenderer('views_edit_stache',can.stache("<form class=\"form-horizontal\">\n    {{#each properties}}\n    <div class=\"control-group\">\n        <label class=\"control-label\" for=\"admin-edit-{{key}}\">{{label}}</label>\n        <div class=\"controls\">\n            <div {{appendDocFrag widget}}></div>\n            {{#if canCreate}}\n                <a {{data \"property\" property}} href=\"#\" class=\"admin-edit-create\">Create new</a>\n            {{/if}}\n        </div>\n    </div>\n    {{/each}}\n    {{#if canUpdate}}\n    <div class=\"control-group\">\n        <div class=\"controls\">\n            <button type=\"submit\" class=\"btn btn-primary\">Save</button>\n            {{#if inline}}\n            <button class=\"btn admin-edit-close\">Close</button>\n            {{/if}}\n        </div>\n    </div>\n    {{/if}}\n</form>\n"));
+can.view.preloadStringRenderer('views_list_stache',can.stache("<header>\n    <h2>{{type.getNamePlural}}</h2>\n    {{#if canCreate}}\n        <a class=\"btn btn-primary\" href=\"{{type.getCreateRoute}}\"><i class=\"icon-plus\"></i> Create new</a>\n    {{/if}}\n    {{#if canSearch}}\n        <form class=\"form-search\">\n            <input type=\"text\" class=\"admin-list-search search-query\" placeholder=\"Search\">\n            <button type=\"reset\" class=\"btn admin-list-reset\">Clear</button>\n        </form>\n    {{/if}}\n</header>\n<table>\n    <tr>\n        {{#each type.list}}\n            <th>\n                {{#if options.orderBy}}\n                <a href=\"#\" class=\"sortable asc\" data-order-by=\"{{options.orderBy}}\">\n                    {{getName}}\n                </a>\n                {{else}}\n                    {{getName}}\n                {{/if}}\n            </th>\n        {{/each}}\n        {{#if canUpdate}}<th>Edit</th>{{/if}}\n        {{#if canDestroy}}<th>Delete</th>{{/if}}\n    </tr>\n    <tbody class=\"items\">\n        {{#each items}}\n        <tr {{data \"item\" item}} class=\"{{cssClass}}\">\n            <td>\n                <a href=\"{{route}}\">{{label}}</a>\n            </td>\n            {{#properties}}\n            <td {{appendDocFrag this}}>\n            </td>\n            {{/properties}}\n            {{#if canUpdate}}<td><a href=\"{{route}}\">Edit</a></td>{{/if}}\n            {{#if canDestroy}}<td><a href=\"#\" class=\"delete\">Delete</a></td>{{/if}}\n        </tr>\n        {{/each}}\n    </tbody>\n</table>\n<div class=\"admin-list-paging\"></div>\n"));
+can.view.preloadStringRenderer('views_paginate_stache',can.stache("<div class=\"pagination\">\n  <ul>\n    <li class=\"{{#unless prev}}disabled{{/unless}}\">\n        {{#if prev}}\n            <a href=\"{{prev}}\" title=\"Previous Page\">&laquo;</a>\n        {{else}}<a>&laquo;</a>{{/if}}\n    </li>\n    {{#pages}}\n    <li class=\"{{#active}}active{{/active}}\">\n        <a href=\"{{url}}\">{{page}}</a>\n    </li>\n    {{/pages}}\n    <li class=\"{{#unless next}}disabled{{/unless}}\">\n        {{#if next}}\n            <a href=\"{{next}}\" title=\"Next Page\">&raquo;</a>\n        {{else}}<a>&raquo;</a>{{/if}}\n    </li>\n  </ul>\n</div>\n"));
+can.view.preloadStringRenderer('views_prop-checkbox_stache',can.stache("<input type=\"checkbox\" value=\"{{value}}\" name=\"{{name}}\" id=\"admin-edit-{{name}}\"{{#checked}} checked{{/checked}}>\n"));
+can.view.preloadStringRenderer('views_prop-display_stache',can.stache("<span class=\"{{cssClass}}\">{{val}}</span>\n"));
+can.view.preloadStringRenderer('views_prop-input_stache',can.stache("<input type=\"text\" name=\"{{name}}\" id=\"admin-edit-{{name}}\" value=\"{{value}}\">\n"));
+can.view.preloadStringRenderer('views_prop-list-checkbox_stache',can.stache("<div class=\"row-fluid admin-list-checkbox {{cssClass}}\">\n{{#each options}}\n    <label>\n        <input type=\"checkbox\" name=\"{{name}}\" value=\"{{value}}\"{{#selected}} checked{{/selected}}>\n        {{displayName}}\n    </label>\n{{/each}}\n</div>\n"));
+can.view.preloadStringRenderer('views_prop-radio_stache',can.stache("<div class=\"{{cssClass}}\">\n{{#each options}}\n    <label>\n        <input type=\"radio\" name=\"{{name}}\" value=\"{{value}}\"{{#selected}} checked{{/selected}}>\n        {{displayName}}\n    </label>\n{{/each}}\n</div>\n"));
+can.view.preloadStringRenderer('views_prop-select_stache',can.stache("<select class=\"{{cssClass}}\"\n    style=\"min-width: 220px; max-width: 600px;\"\n    id=\"admin-edit-{{name}}\"\n    name=\"{{name}}\"\n    {{#multiple}}multiple size=\'3\'{{/multiple}}>\n    {{#each options}}\n        <option value=\"{{value}}\"{{#selected}} selected{{/selected}}>\n            {{displayName}}\n        </option>\n    {{/each}}\n</select>\n"));
+can.view.preloadStringRenderer('views_prop-textarea_stache',can.stache("<textarea class=\"{{cssClass}}\" id=\"admin-edit-{{name}}\" name=\"{{name}}\" rows=\"{{rows}}\">{{{value}}}</textarea>\n")); 
+})(this);
+define("views", function(){});
 
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"                ");___v1ew.push(
-can.view.txt(
-0,
-'ul',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"isShowInMenu"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"\n                <li>\n                    <a href=\"");___v1ew.push(
-can.view.txt(
-true,
-'a',
-'href',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"getRoute"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n                        <i class=\"icon-");___v1ew.push(
-can.view.txt(
-true,
-'i',
-'class',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"getIcon"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"</i>\n                        ");___v1ew.push(
-can.view.txt(
-1,
-'a',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"getNamePlural"})));___v1ew.push(
-"\n                    </a>\n                </li>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"            ");return ___v1ew.join("");}}])));___v1ew.push(
-"\n        </ul>");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'nav',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"pages"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"        <hr>\n        <ul>");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'ul',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"pages"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"                <li>\n                    <a href=\"");___v1ew.push(
-can.view.txt(
-true,
-'a',
-'href',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"getRoute"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n                        <i class=\"icon-");___v1ew.push(
-can.view.txt(
-true,
-'i',
-'class',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"getIcon"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"</i>\n                        ");___v1ew.push(
-can.view.txt(
-1,
-'a',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"getName"})));___v1ew.push(
-"\n                    </a>\n                </li>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"        </ul>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"    </nav>\n    <div class=\"admin-content\"></div>\n</div>\n");; return ___v1ew.join('') }));
-can.view.preloadStringRenderer('views_breadcrumb_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<a href=\"");___v1ew.push(
-can.view.txt(
-true,
-'a',
-'href',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"url"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-can.view.txt(
-1,
-'a',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"text"})));___v1ew.push(
-"</a>\n");; return ___v1ew.join('') }));
-can.view.preloadStringRenderer('views_edit-inline_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<div class=\"admin-edit-inline\">\n    <div class=\"admin-edit-overlay\">\n        <h2>");___v1ew.push(
-can.view.txt(
-1,
-'h2',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"type.getName"})));___v1ew.push(
-"</h2>\n        <div class=\"admin-edit-form\"></div>\n    </div>\n</div>\n");; return ___v1ew.join('') }));
-can.view.preloadStringRenderer('views_edit_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<form class=\"form-horizontal\">");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'form',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"properties"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"    <div class=\"control-group\">\n        <label class=\"control-label\" for=\"admin-edit-");___v1ew.push(
-can.view.txt(
-true,
-'label',
-'for',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"key"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-can.view.txt(
-1,
-'label',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"label"})));___v1ew.push(
-"</label>\n        <div class=\"controls\">\n            ");___v1ew.push(
-can.view.txt(
-0,
-'div',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"widget"})));___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'div',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"canCreate"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"                <a ");___v1ew.push(
-can.view.txt(
-0,
-'a',
-1,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"with"},{get:"property"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-can.view.txt(
-1,
-'a',
-1,
-this,
-function(){ return can.proxy(function(__){can.data(can.$(__),'property', this.attr('.')); }, scope)}));
-return ___v1ew.join("");}}])));___v1ew.push(
-" href=\"#\" class=\"admin-edit-create\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"Create new</a>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"        </div>\n    </div>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"    ");___v1ew.push(
-can.view.txt(
-0,
-'form',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"canUpdate"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"\n    <div class=\"control-group\">\n        <div class=\"controls\">\n            <button type=\"submit\" class=\"btn btn-primary\">Save</button>");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'div',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"inline"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"            <button class=\"btn admin-edit-close\">Close</button>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"        </div>\n    </div>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"</form>\n");; return ___v1ew.join('') }));
-can.view.preloadStringRenderer('views_list_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<header>\n    <h2>");___v1ew.push(
-can.view.txt(
-1,
-'h2',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"type.getNamePlural"})));___v1ew.push(
-"</h2>");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'header',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"canCreate"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"        <a class=\"btn btn-primary\" href=\"");___v1ew.push(
-can.view.txt(
-true,
-'a',
-'href',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"type.getCreateRoute"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"<i class=\"icon-plus\"></i> Create new</a>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"    ");___v1ew.push(
-can.view.txt(
-0,
-'header',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"canSearch"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"\n        <form class=\"form-search\">\n            <input type=\"text\" class=\"admin-list-search search-query\" placeholder=\"Search\">\n            <button type=\"reset\" class=\"btn admin-list-reset\">Clear</button>\n        </form>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"</header>\n<table>\n    <tr>");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'tr',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"each"},{get:"type.list"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"            <th>");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'th',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"options.orderBy"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"                <a href=\"#\" class=\"sortable asc\" data-order-by=\"");___v1ew.push(
-can.view.txt(
-true,
-'a',
-'data-order-by',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"options.orderBy"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n                    ");___v1ew.push(
-can.view.txt(
-1,
-'a',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"getName"})));___v1ew.push(
-"\n                </a>\n                ");return ___v1ew.join("");}},
-{inverse:function(scope,options){
-var ___v1ew = [];___v1ew.push(
-"\n                    ");___v1ew.push(
-can.view.txt(
-1,
-'th',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"getName"})));___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"            </th>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"        ");___v1ew.push(
-can.view.txt(
-0,
-'tr',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"canUpdate"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"<th>Edit</th>");return ___v1ew.join("");}}])));___v1ew.push(
-"\n        ");___v1ew.push(
-can.view.txt(
-0,
-'tr',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"canDestroy"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"<th>Delete</th>");return ___v1ew.join("");}}])));___v1ew.push(
-"\n    </tr>\n    <tbody class=\"items\">");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'tbody',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"each"},{get:"items"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"        <tr ");___v1ew.push(
-can.view.txt(
-0,
-'tr',
-1,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"with"},{get:"item"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-can.view.txt(
-1,
-'tr',
-1,
-this,
-function(){ return can.proxy(function(__){can.data(can.$(__),'item', this.attr('.')); }, scope)}));
-return ___v1ew.join("");}}])));___v1ew.push(
-" class=\"");___v1ew.push(
-can.view.txt(
-true,
-'tr',
-'class',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"cssClass"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n            <td>\n                <a href=\"");___v1ew.push(
-can.view.txt(
-true,
-'a',
-'href',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"route"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-can.view.txt(
-1,
-'a',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"label"})));___v1ew.push(
-"</a>\n            </td>");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'tr',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"properties"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"            <td>\n                ");___v1ew.push(
-can.view.txt(
-0,
-'td',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"."})));___v1ew.push(
-"\n            </td>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"            ");___v1ew.push(
-can.view.txt(
-0,
-'tr',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"canUpdate"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"<td><a href=\"");___v1ew.push(
-can.view.txt(
-true,
-'a',
-'href',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"route"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"Edit</a></td>");return ___v1ew.join("");}}])));___v1ew.push(
-"\n            ");___v1ew.push(
-can.view.txt(
-0,
-'tr',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"canDestroy"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"<td><a href=\"#\" class=\"delete\">Delete</a></td>");return ___v1ew.join("");}}])));___v1ew.push(
-"\n        </tr>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"    </tbody>\n</table>\n<div class=\"admin-list-paging\"></div>\n");; return ___v1ew.join('') }));
-can.view.preloadStringRenderer('views_paginate_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<div class=\"pagination\">\n  <ul>\n    <li class=\"");___v1ew.push(
-can.view.txt(
-true,
-'li',
-'class',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"unless"},{get:"prev"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"disabled");return ___v1ew.join("");}}])));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'li',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"prev"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"            <a href=\"");___v1ew.push(
-can.view.txt(
-true,
-'a',
-'href',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"prev"})));___v1ew.push(
-"\" title=\"Previous Page\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"&laquo;</a>\n        ");return ___v1ew.join("");}},
-{inverse:function(scope,options){
-var ___v1ew = [];___v1ew.push(
-"<a>&laquo;</a>");return ___v1ew.join("");}}])));___v1ew.push(
-"\n    </li>");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'ul',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"pages"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"    <li class=\"");___v1ew.push(
-can.view.txt(
-true,
-'li',
-'class',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"active"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"active");return ___v1ew.join("");}}])));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n        <a href=\"");___v1ew.push(
-can.view.txt(
-true,
-'a',
-'href',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"url"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-can.view.txt(
-1,
-'a',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"page"})));___v1ew.push(
-"</a>\n    </li>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"    <li class=\"");___v1ew.push(
-can.view.txt(
-true,
-'li',
-'class',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"unless"},{get:"next"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"disabled");return ___v1ew.join("");}}])));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'li',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"if"},{get:"next"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"            <a href=\"");___v1ew.push(
-can.view.txt(
-true,
-'a',
-'href',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"next"})));___v1ew.push(
-"\" title=\"Next Page\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"&raquo;</a>\n        ");return ___v1ew.join("");}},
-{inverse:function(scope,options){
-var ___v1ew = [];___v1ew.push(
-"<a>&raquo;</a>");return ___v1ew.join("");}}])));___v1ew.push(
-"\n    </li>\n  </ul>\n</div>\n");; return ___v1ew.join('') }));
-can.view.preloadStringRenderer('views_prop-checkbox_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<input type=\"checkbox\" value=\"");___v1ew.push(
-can.view.txt(
-true,
-'input',
-'value',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"value"})));___v1ew.push(
-"\" name=\"");___v1ew.push(
-can.view.txt(
-true,
-'input',
-'name',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"name"})));___v1ew.push(
-"\" id=\"admin-edit-");___v1ew.push(
-can.view.txt(
-true,
-'input',
-'id',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"name"})));___v1ew.push(
-"\"");___v1ew.push(
-can.view.txt(
-0,
-'input',
-1,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"checked"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-" checked");return ___v1ew.join("");}}])));___v1ew.push(
-"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n");; return ___v1ew.join('') }));
-can.view.preloadStringRenderer('views_prop-display_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<span class=\"");___v1ew.push(
-can.view.txt(
-true,
-'span',
-'class',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"cssClass"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-can.view.txt(
-1,
-'span',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"val"})));___v1ew.push(
-"</span>\n");; return ___v1ew.join('') }));
-can.view.preloadStringRenderer('views_prop-input_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<input type=\"text\" name=\"");___v1ew.push(
-can.view.txt(
-true,
-'input',
-'name',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"name"})));___v1ew.push(
-"\" id=\"admin-edit-");___v1ew.push(
-can.view.txt(
-true,
-'input',
-'id',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"name"})));___v1ew.push(
-"\" value=\"");___v1ew.push(
-can.view.txt(
-true,
-'input',
-'value',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"value"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n");; return ___v1ew.join('') }));
-can.view.preloadStringRenderer('views_prop-list-checkbox_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<div class=\"row-fluid admin-list-checkbox ");___v1ew.push(
-can.view.txt(
-true,
-'div',
-'class',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"cssClass"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'div',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"each"},{get:"options"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"    <label>\n        <input type=\"checkbox\" name=\"");___v1ew.push(
-can.view.txt(
-true,
-'input',
-'name',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"name"})));___v1ew.push(
-"\" value=\"");___v1ew.push(
-can.view.txt(
-true,
-'input',
-'value',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"value"})));___v1ew.push(
-"\"");___v1ew.push(
-can.view.txt(
-0,
-'input',
-1,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"selected"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-" checked");return ___v1ew.join("");}}])));___v1ew.push(
-"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n        ");___v1ew.push(
-can.view.txt(
-1,
-'input',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"displayName"})));___v1ew.push(
-"\n    </label>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"</div>\n");; return ___v1ew.join('') }));
-can.view.preloadStringRenderer('views_prop-radio_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<div class=\"");___v1ew.push(
-can.view.txt(
-true,
-'div',
-'class',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"cssClass"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'div',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"each"},{get:"options"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"    <label>\n        <input type=\"radio\" name=\"");___v1ew.push(
-can.view.txt(
-true,
-'input',
-'name',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"name"})));___v1ew.push(
-"\" value=\"");___v1ew.push(
-can.view.txt(
-true,
-'input',
-'value',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"value"})));___v1ew.push(
-"\"");___v1ew.push(
-can.view.txt(
-0,
-'input',
-1,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"selected"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-" checked");return ___v1ew.join("");}}])));___v1ew.push(
-"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n        ");___v1ew.push(
-can.view.txt(
-1,
-'input',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"displayName"})));___v1ew.push(
-"\n    </label>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"</div>\n");; return ___v1ew.join('') }));
-can.view.preloadStringRenderer('views_prop-select_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<select class=\"");___v1ew.push(
-can.view.txt(
-true,
-'select',
-'class',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"cssClass"})));___v1ew.push(
-"\"\n    ");___v1ew.push(
-can.view.txt(2,'select','style',this,function(){var ___v1ew = [];___v1ew.push(
-"style=\"");___v1ew.push(
-"min-width: 220px; max-width: 600px;\"");return ___v1ew.join('')}));
-___v1ew.push(
-"\n    id=\"admin-edit-");___v1ew.push(
-can.view.txt(
-true,
-'select',
-'id',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"name"})));___v1ew.push(
-"\"\n    name=\"");___v1ew.push(
-can.view.txt(
-true,
-'select',
-'name',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"name"})));___v1ew.push(
-"\"\n    ");___v1ew.push(
-can.view.txt(
-0,
-'select',
-1,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"multiple"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"multiple size='3'");return ___v1ew.join("");}}])));___v1ew.push(
-"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n");___v1ew.push(
-can.view.txt(
-0,
-'select',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"each"},{get:"options"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-"        <option value=\"");___v1ew.push(
-can.view.txt(
-true,
-'option',
-'value',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"value"})));___v1ew.push(
-"\"");___v1ew.push(
-can.view.txt(
-0,
-'option',
-1,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-"#",{get:"selected"},[
-
-{fn:function(scope,options){var ___v1ew = [];___v1ew.push(
-" selected");return ___v1ew.join("");}}])));___v1ew.push(
-"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-"\n            ");___v1ew.push(
-can.view.txt(
-1,
-'option',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"displayName"})));___v1ew.push(
-"\n        </option>");___v1ew.push(
-"\n");return ___v1ew.join("");}}])));___v1ew.push(
-"</select>\n");; return ___v1ew.join('') }));
-can.view.preloadStringRenderer('views_prop-textarea_mustache',can.Mustache(function(scope,options) { var ___v1ew = [];___v1ew.push(
-"<textarea class=\"");___v1ew.push(
-can.view.txt(
-true,
-'textarea',
-'class',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"cssClass"})));___v1ew.push(
-"\" id=\"admin-edit-");___v1ew.push(
-can.view.txt(
-true,
-'textarea',
-'id',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"name"})));___v1ew.push(
-"\" name=\"");___v1ew.push(
-can.view.txt(
-true,
-'textarea',
-'name',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"name"})));___v1ew.push(
-"\" rows=\"");___v1ew.push(
-can.view.txt(
-true,
-'textarea',
-'rows',
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"rows"})));___v1ew.push(
-"\"",can.view.pending({scope: scope,options: options}),">");___v1ew.push(
-can.view.txt(
-0,
-'textarea',
-0,
-this,
-can.Mustache.txt(
-{scope:scope,options:options},
-null,{get:"value"})));___v1ew.push(
-"</textarea>\n");; return ___v1ew.join('') })); });
 define('controls/list',[
     "../views"
-], function(ejsList, ejsPaginate) {
+], function() {
 
     var List = can.Control.extend({
         init: function(el, options) {
@@ -1970,7 +1010,7 @@ define('controls/list',[
         },
 
         renderPage: function() {
-            this.element.html(can.view("../views/list.mustache", {
+            this.element.html(can.view("../views/list.stache", {
                 type: this.options.type,
                 canCreate: this.options.type.canCreate(),
                 canSearch: this.options.type.canSearch(),
@@ -2054,7 +1094,7 @@ define('controls/list',[
                     }
                 }
 
-                that.element.find(".admin-list-paging").html(can.view("../views/paginate.mustache", {
+                that.element.find(".admin-list-paging").html(can.view("../views/paginate.stache", {
                     next: hasNext ? can.route.url({route: route, type: type, page: page + 1}) : undefined,
                     prev: page > 0 ? can.route.url({route: route, type: type, page: page - 1}) : undefined,
                     pages: pages
@@ -2168,7 +1208,7 @@ define('controls/edit',[
                     el.find(".admin-edit-form") :
                     el
 
-                target.html(can.view("../views/edit.mustache", {
+                target.html(can.view("../views/edit.stache", {
                     type: options.type,
                     canUpdate: options.type.canUpdate(),
                     inline: options.inline,
@@ -2227,7 +1267,7 @@ define('controls/edit',[
             var type = property.getType()
             var that = this
 
-            this.element.after(can.view("../views/edit-inline.mustache", {
+            this.element.after(can.view("../views/edit-inline.stache", {
                 type: type
             }))
 
@@ -2256,9 +1296,23 @@ define('controls/edit',[
     return Edit
 })
 ;
+define('controls/helpers',[], function() {
+    can.stache.registerHelper("appendDocFrag",
+        function(docFrag){
+            return function(el) {
+                if(docFrag instanceof Node) {
+                    el.appendChild(docFrag)
+                } else {
+                    can.$(el).append(docFrag)
+                }
+            }
+        })
+})
+;
 define('controls/main',[
     "./list",
     "./edit",
+    "./helpers",
     "../views"
 ], function(CtrlList, CtrlEdit) {
 
@@ -2328,7 +1382,7 @@ define('controls/main',[
         },
 
         initHtml: function(){
-            this.element.html(can.view("../views/admin.mustache", {
+            this.element.html(can.view("../views/admin.stache", {
                 types: this.options.types,
                 pages: this.options.pages
             }))
@@ -2402,7 +1456,7 @@ define('controls/main',[
             }
         },
         appendToBreadcrumb: function(text, url){
-            this.element.find(".admin-breadcrumb").append(can.view("../views/breadcrumb.mustache", {
+            this.element.find(".admin-breadcrumb").append(can.view("../views/breadcrumb.stache", {
                 url: url,
                 text: text
             }))
@@ -2466,7 +1520,7 @@ define('item',[],function() {
         getWidget: function(property){
             var mode = this.instance.isNew() ? "create" : "update"
             return !this.type.canUpdate() || !property.isEnabled(mode) ?
-                "<span class='ro-property'>"+this.getDisplay(property, "edit")+"</span>" :
+                can.$("<span class='ro-property'></span>").append(this.getDisplay(property, "edit")) :
                 property.getWidget(this.instance)
         },
 

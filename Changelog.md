@@ -1,3 +1,7 @@
+__0.2.8__ ( 2015-12-02 )
+
+- upgrade to CanJS 2.3.2, port views to stache
+
 __0.2.7__ ( 2015-11-05 )
 
 - configure which types are visible in menu: new option "showInMenu" for types
